@@ -4,7 +4,7 @@
 
 Shows TPS, MSPT and other server stats in the tab list, action bar and boss bar. On Folia every player sees the values of the region they are in, not a server-wide average.
 
-Started as a Folia fork of [TabTPS by jpenilla](https://github.com/jpenilla/TabTPS). Since 1.2.0 it also runs on Canvas, Purpur, Leaf and Spigot, and as a Forge mod.
+Started as a Folia fork of [TabTPS by jpenilla](https://github.com/jpenilla/TabTPS). Since 1.2.0 it also runs on Canvas, Paper, Purpur, Leaf and Spigot, and since 1.3.0 as a Forge mod.
 
 Download: [Modrinth](https://modrinth.com/plugin/tabtps-folia) or [GitHub releases](https://github.com/MCbabel/TabTPS-Folia/releases)
 
@@ -18,6 +18,7 @@ One jar for all of these servers, requires **Java 17+** and Minecraft **1.20 –
 |---|---|---|
 | [Folia](https://papermc.io/software/folia) | per region | 1.20.1, 1.20.2, 1.20.4, 1.20.6, 1.21.4, 1.21.5, 1.21.6, 1.21.8, 1.21.11, 26.1.2, 26.2, 26.3 |
 | [Canvas](https://canvasmc.io) (Folia fork) | per region | 26.3 |
+| [Paper](https://papermc.io/software/paper) | global | 1.20.1, 26.3 |
 | [Purpur](https://purpurmc.org) | global | 1.20.1, 1.21.4, 1.21.10, 26.3 |
 | [Leaf](https://www.leafmc.one) | global | 1.21.4, 26.3 |
 | [Spigot](https://www.spigotmc.org) | global | 1.20.1, 1.21.1, 1.21.4, 26.3 |
@@ -41,7 +42,7 @@ Put the jar into the `mods/` folder. It only runs on the server side: players do
 
 On Folia, each player sees the TPS and MSPT of **their current region**, not a global average. When a player moves between regions, the displayed values update automatically.
 
-On servers without regions (Purpur, Leaf, Spigot) there is a single global tick loop, so `tps` and `mspt` show the server-wide values and the region modules below report `N/A`.
+On servers without regions (Paper, Purpur, Leaf, Spigot) there is a single global tick loop, so `tps` and `mspt` show the server-wide values and the region modules below report `N/A`.
 
 ### Modules
 

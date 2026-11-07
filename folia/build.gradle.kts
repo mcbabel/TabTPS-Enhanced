@@ -97,6 +97,7 @@ publishMods.modrinth {
     "26.3"
   )
   modLoaders.add("folia")
+  modLoaders.add("paper")
   modLoaders.add("purpur")
   modLoaders.add("spigot")
 }
