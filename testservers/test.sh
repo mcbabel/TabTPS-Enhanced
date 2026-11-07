@@ -66,6 +66,7 @@ run() {
   printf 'online-mode=false\nserver-port=%s\nview-distance=4\nsimulation-distance=4\nlevel-type=minecraft\\:flat\n' "${PORT:-25599}" > server.properties
   : > cmd.txt
   (tail -n +1 -f "$dir/cmd.txt" | "$java" -Xms1G -Xmx2G -jar server.jar --nogui > console.log 2>&1) &
+  local server=$!
   timeout 300 bash -c 'until grep -qE "Done \(|Failed to start|Encountered an unexpected exception" console.log; do sleep 1; done'
   for command in "tickinfo" "tabtps reload" "tickinfo" "memory" "tabtps about"; do
     echo "$command" >> cmd.txt
@@ -75,7 +76,7 @@ run() {
   timeout 90 bash -c 'until grep -q "Disabling TabTPS" console.log; do sleep 1; done'
   sleep 5
   pkill -f "[t]ail -n \+1 -f $dir/cmd.txt" 2>/dev/null
-  sleep 2
+  wait "$server" 2>/dev/null
   cp console.log "$root/logs/$name.log"
   local mode tps exceptions
   if grep -q "Successfully initialized Folia region tick data accessor" console.log; then

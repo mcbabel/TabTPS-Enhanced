@@ -14,9 +14,9 @@ One jar for all of them, requires **Java 17+** and Minecraft **1.20 – 26.3**:
 |---|---|---|
 | [Folia](https://papermc.io/software/folia) | per region | 1.20.1, 1.20.2, 1.20.4, 1.20.6, 1.21.4, 1.21.5, 1.21.6, 1.21.8, 1.21.11, 26.1.2, 26.2, 26.3 |
 | [Canvas](https://canvasmc.io) (Folia fork) | per region | 26.3 |
-| [Purpur](https://purpurmc.org) | global | 1.20.1, 1.21.4, 26.3 |
+| [Purpur](https://purpurmc.org) | global | 1.20.1, 1.21.4, 1.21.10, 26.3 |
 | [Leaf](https://www.leafmc.one) | global | 1.21.4, 26.3 |
-| [Spigot](https://www.spigotmc.org) | global | 1.20.1, 1.21.4, 26.3 |
+| [Spigot](https://www.spigotmc.org) | global | 1.20.1, 1.21.1, 1.21.4, 26.3 |
 
 The plugin detects at startup whether the server ticks regions and picks its tick data source accordingly. Spigot has no Paper API, so there the global TPS/MSPT are read directly from the server.
 

@@ -13,9 +13,11 @@ folia-26.3 25 https://fill-data.papermc.io/v1/objects/c105f6be9463b2da37568b620e
 canvas-26.3 25 https://jenkins.canvasmc.io/job/Canvas/993/artifact/canvas-server/build/libs/canvas-build.993.jar -
 purpur-1.20.1 17 https://api.purpurmc.org/v2/purpur/1.20.1/latest/download -
 purpur-1.21.4 21 https://api.purpurmc.org/v2/purpur/1.21.4/latest/download -
+purpur-1.21.10 21 https://api.purpurmc.org/v2/purpur/1.21.10/latest/download -
 purpur-26.3 25 https://api.purpurmc.org/v2/purpur/26.3/2654/download -
 leaf-1.21.4 21 https://api.leafmc.one/v2/projects/leaf/versions/1.21.4/builds/525/downloads/leaf-1.21.4-525.jar 3e2d4036dae06c2aec79864bcd0b36f596488955e7615c0e338cde563fea6657
 leaf-26.3 25 https://api.leafmc.one/v2/projects/leaf/versions/26.3/builds/13/downloads/leaf-26.3-13.jar 95b0dad1117344a9471a2b71fcb7e38b891c78e7bde403e8e26b7d6e2c8b697c
 spigot-1.20.1 17 buildtools:1.20.1 -
+spigot-1.21.1 21 buildtools:1.21.1 -
 spigot-1.21.4 21 buildtools:1.21.4 -
 spigot-26.3 25 buildtools:26.3 -
