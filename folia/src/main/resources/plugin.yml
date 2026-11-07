@@ -8,3 +8,5 @@ website: ${github}
 authors:
   - MCbabel
   - jmp
+softdepend:
+  - PlaceholderAPI

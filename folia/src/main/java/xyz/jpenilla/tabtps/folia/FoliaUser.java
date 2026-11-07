@@ -50,6 +50,11 @@ public final class FoliaUser extends AbstractUser<Player> {
   }
 
   @Override
+  public String name() {
+    return this.base().getName();
+  }
+
+  @Override
   public Component displayName() {
     return Serializers.LEGACY_SECTION.deserialize(this.base().getDisplayName());
   }

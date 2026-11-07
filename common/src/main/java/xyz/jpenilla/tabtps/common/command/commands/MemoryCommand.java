@@ -25,6 +25,7 @@ package xyz.jpenilla.tabtps.common.command.commands;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryPoolMXBean;
+import java.lang.management.MemoryUsage;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -34,6 +35,7 @@ import org.incendo.cloud.context.CommandContext;
 import xyz.jpenilla.tabtps.common.Messages;
 import xyz.jpenilla.tabtps.common.TabTPS;
 import xyz.jpenilla.tabtps.common.command.Commander;
+import xyz.jpenilla.tabtps.common.command.ConsoleCommander;
 import xyz.jpenilla.tabtps.common.command.Commands;
 import xyz.jpenilla.tabtps.common.command.TabTPSCommand;
 import xyz.jpenilla.tabtps.common.util.Components;
@@ -60,6 +62,7 @@ public final class MemoryCommand extends TabTPSCommand {
   }
 
   private void executeMemory(final @NonNull CommandContext<Commander> ctx) {
+    final boolean console = ctx.sender() instanceof ConsoleCommander;
     final List<Component> messages = new ArrayList<>();
     messages.add(empty());
     final Component header = Components.ofChildren(
@@ -69,16 +72,20 @@ public final class MemoryCommand extends TabTPSCommand {
     );
     messages.add(header);
     if (!this.tabTPS.configManager().pluginSettings().ignoredMemoryPools().contains("Heap Memory Usage")) {
-      messages.add(MemoryUtil.renderBar("Heap Memory Usage", ManagementFactory.getMemoryMXBean().getHeapMemoryUsage(), 60));
+      messages.add(bar(console, "Heap Memory Usage", ManagementFactory.getMemoryMXBean().getHeapMemoryUsage()));
     }
     if (!this.tabTPS.configManager().pluginSettings().ignoredMemoryPools().contains("Non-Heap Memory Usage")) {
-      messages.add(MemoryUtil.renderBar("Non-Heap Memory Usage", ManagementFactory.getMemoryMXBean().getNonHeapMemoryUsage(), 60));
+      messages.add(bar(console, "Non-Heap Memory Usage", ManagementFactory.getMemoryMXBean().getNonHeapMemoryUsage()));
     }
     ManagementFactory.getMemoryPoolMXBeans().stream()
       .filter(bean -> bean != null && !this.tabTPS.configManager().pluginSettings().ignoredMemoryPools().contains(bean.getName()))
       .sorted(Comparator.comparing(MemoryPoolMXBean::getName))
-      .map(bean -> MemoryUtil.renderBar(bean.getName(), bean.getUsage(), 60))
+      .map(bean -> bar(console, bean.getName(), bean.getUsage()))
       .forEach(messages::add);
     messages.forEach(ctx.sender()::sendMessage);
+  }
+
+  private static @NonNull Component bar(final boolean console, final @NonNull String name, final @NonNull MemoryUsage usage) {
+    return console ? MemoryUtil.renderBarWithDetails(name, usage, 60) : MemoryUtil.renderBar(name, usage, 60);
   }
 }

@@ -48,6 +48,11 @@ public final class ForgeUser extends AbstractUser<ServerPlayer> {
   }
 
   @Override
+  public String name() {
+    return this.base().getGameProfile().name();
+  }
+
+  @Override
   public Component displayName() {
     return this.platform.audiences().toAdventure(this.base().getDisplayName());
   }

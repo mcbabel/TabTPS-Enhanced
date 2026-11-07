@@ -47,6 +47,14 @@ public final class ModuleType<T extends Module> {
   public static final ModuleType<LowestRegionTPSModule> LOWEST_REGION_TPS = withoutPlayer(LowestRegionTPSModule.class, LowestRegionTPSModule::new, "lowest_region_tps");
   public static final ModuleType<MedianRegionTPSModule> MEDIAN_REGION_TPS = withoutPlayer(MedianRegionTPSModule.class, MedianRegionTPSModule::new, "median_region_tps");
   public static final ModuleType<HighestRegionTPSModule> HIGHEST_REGION_TPS = withoutPlayer(HighestRegionTPSModule.class, HighestRegionTPSModule::new, "highest_region_tps");
+  public static final ModuleType<UptimeModule> UPTIME = withoutPlayer(UptimeModule.class, UptimeModule::new, "uptime");
+  public static final ModuleType<MobCapModule> MOB_CAPS = withPlayer(MobCapModule.class, (tabTPS, theme, user) -> new MobCapModule(tabTPS, theme, user, null), "mob_caps");
+
+  static {
+    for (final String category : MobCapModule.CATEGORIES) {
+      withPlayer(MobCapModule.class, (tabTPS, theme, user) -> new MobCapModule(tabTPS, theme, user, category), "mob_cap_" + category);
+    }
+  }
 
   public static Collection<ModuleType<?>> moduleTypes() {
     return Collections.unmodifiableCollection(TYPES_BY_NAME.values());

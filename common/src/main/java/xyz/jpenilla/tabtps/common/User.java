@@ -41,6 +41,8 @@ public interface User<P> extends Commander {
 
   UUID uuid();
 
+  String name();
+
   Component displayName();
 
   boolean online();

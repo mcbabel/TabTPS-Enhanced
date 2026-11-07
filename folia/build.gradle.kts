@@ -17,6 +17,9 @@ dependencies {
     exclude(group = "org.slf4j")
   }
   compileOnly(libs.brigadier)
+  compileOnly(libs.placeholderApi) {
+    isTransitive = false
+  }
   implementation(libs.adventurePlatformBukkit)
   implementation(libs.adventureTextSerializerPlain)
   implementation(libs.bstatsBukkit)

@@ -69,6 +69,28 @@ public final class MemoryUtil {
     return renderBarImpl(name, usage, barLength);
   }
 
+  public static @NonNull Component renderBarWithDetails(final @NonNull String name, final @NonNull MemoryUsage usage, final int barLength) {
+    final TextComponent.Builder details = text()
+      .append(renderBarImpl(name, usage, barLength))
+      .append(space())
+      .append(text("(", GRAY))
+      .append(humanReadableByteCountBin(usage.getUsed()))
+      .append(space())
+      .append(Messages.LABEL_USED.styled(WHITE))
+      .append(text("/", GRAY))
+      .append(humanReadableByteCountBin(usage.getCommitted()))
+      .append(space())
+      .append(Messages.LABEL_ALLOCATED.styled(WHITE));
+    if (usage.getMax() != -1) {
+      details.append(text(",", GRAY))
+        .append(space())
+        .append(humanReadableByteCountBin(usage.getMax()))
+        .append(space())
+        .append(Messages.LABEL_MAXIMUM.styled(WHITE));
+    }
+    return details.append(text(")", GRAY)).build();
+  }
+
   private static @NonNull Component renderBarImpl(final @Nullable String name, final @NonNull MemoryUsage usage, final int barLength) {
     final long used = usage.getUsed();
     final long committed = usage.getCommitted();

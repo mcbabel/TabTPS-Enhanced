@@ -28,7 +28,10 @@ import java.nio.file.Path;
 import java.util.Objects;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bstats.bukkit.Metrics;
+import org.bukkit.Bukkit;
 import org.bukkit.Server;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.ProxiedCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -43,7 +46,9 @@ import org.slf4j.LoggerFactory;
 import xyz.jpenilla.tabtps.common.TabTPS;
 import xyz.jpenilla.tabtps.common.TabTPSPlatform;
 import xyz.jpenilla.tabtps.common.command.Commander;
+import xyz.jpenilla.tabtps.common.command.DelegateUser;
 import xyz.jpenilla.tabtps.common.command.commands.TickInfoCommand;
+import xyz.jpenilla.tabtps.common.service.MobCapService;
 import xyz.jpenilla.tabtps.common.service.RegionStatsService;
 import xyz.jpenilla.tabtps.common.service.TickTimeService;
 import xyz.jpenilla.tabtps.common.service.UserService;
@@ -51,6 +56,8 @@ import xyz.jpenilla.tabtps.common.util.UpdateChecker;
 import xyz.jpenilla.tabtps.folia.command.FoliaConsoleCommander;
 import xyz.jpenilla.tabtps.folia.command.FoliaPingCommand;
 import xyz.jpenilla.tabtps.folia.command.FoliaTickInfoCommandFormatter;
+import xyz.jpenilla.tabtps.folia.placeholder.PlaceholderHook;
+import xyz.jpenilla.tabtps.folia.service.BukkitMobCapService;
 import xyz.jpenilla.tabtps.folia.service.FoliaRegionStatsService;
 import xyz.jpenilla.tabtps.folia.service.FoliaTickTimeService;
 import xyz.jpenilla.tabtps.folia.service.FoliaUserService;
@@ -66,6 +73,7 @@ public final class TabTPSFolia extends JavaPlugin implements TabTPSPlatform<Play
   private UserService<Player, FoliaUser> userService;
   private TickTimeService tickTimeService;
   private @Nullable FoliaRegionStatsService regionStatsService;
+  private @Nullable BukkitMobCapService mobCapService;
   private Logger logger;
   private BukkitAudiences audiences;
 
@@ -85,10 +93,14 @@ public final class TabTPSFolia extends JavaPlugin implements TabTPSPlatform<Play
     this.getServer().getOnlinePlayers().forEach(this.userService::handleJoin);
 
     this.metrics = new Metrics(this, BSTATS_PLUGIN_ID);
+    PlaceholderHook.register(this);
+    if (this.mobCapService != null) {
+      this.mobCapService.start(this);
+    }
 
     if (this.tabTPS.configManager().pluginSettings().updateChecker()) {
       this.tabTPS.executor().execute(() ->
-        UpdateChecker.checkVersion(this.getDescription().getVersion()).forEach(this.logger::info)
+        UpdateChecker.checkVersion(this.getDescription().getVersion(), updateLoader(), Bukkit.getBukkitVersion().split("-")[0]).forEach(this.logger::info)
       );
     }
   }
@@ -131,6 +143,13 @@ public final class TabTPSFolia extends JavaPlugin implements TabTPSPlatform<Play
     }
   }
 
+  private static String updateLoader() {
+    if (regionizedServer()) {
+      return "folia";
+    }
+    return paperServer() ? "paper" : "spigot";
+  }
+
   private static boolean paperServer() {
     try {
       Server.class.getMethod("getTPS");
@@ -144,6 +163,7 @@ public final class TabTPSFolia extends JavaPlugin implements TabTPSPlatform<Play
     if (!regionizedServer()) {
       this.logger.info("{} is not a regionized server, using global TPS/MSPT.", this.getServer().getName());
       this.tickTimeService = paperServer() ? new PaperTickTimeService() : new SpigotTickTimeService();
+      this.mobCapService = new BukkitMobCapService();
       return;
     }
 
@@ -163,13 +183,19 @@ public final class TabTPSFolia extends JavaPlugin implements TabTPSPlatform<Play
           if (commandSender instanceof Player) {
             return this.userService().user((Player) commandSender);
           }
-          return FoliaConsoleCommander.from(this.audiences, commandSender);
+          if (commandSender instanceof ProxiedCommandSender && ((ProxiedCommandSender) commandSender).getCallee() instanceof Player) {
+            final ProxiedCommandSender proxied = (ProxiedCommandSender) commandSender;
+            return new DelegateUser<>(this.userService().user((Player) proxied.getCallee()), proxied, proxied.getCaller()::hasPermission);
+          }
+          return FoliaConsoleCommander.from(this.tabTPS, this.audiences, commandSender);
         },
         commander -> {
           if (commander instanceof FoliaConsoleCommander) {
             return ((FoliaConsoleCommander) commander).commandSender();
           } else if (commander instanceof FoliaUser) {
             return ((FoliaUser) commander).base();
+          } else if (commander instanceof DelegateUser) {
+            return (CommandSender) ((DelegateUser<?, ?>) commander).c();
           }
           throw new IllegalArgumentException();
         }
@@ -220,6 +246,11 @@ public final class TabTPSFolia extends JavaPlugin implements TabTPSPlatform<Play
   @Override
   public @Nullable RegionStatsService regionStatsService() {
     return this.regionStatsService;
+  }
+
+  @Override
+  public @Nullable MobCapService mobCapService() {
+    return this.mobCapService;
   }
 
   @Override

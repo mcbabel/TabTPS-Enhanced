@@ -27,6 +27,7 @@ package xyz.jpenilla.tabtps.forge;
 import java.nio.file.Path;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import net.minecraft.SharedConstants;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -52,8 +53,10 @@ import xyz.jpenilla.tabtps.common.TabTPSPlatform;
 import xyz.jpenilla.tabtps.common.command.Commander;
 import xyz.jpenilla.tabtps.common.command.DelegateUser;
 import xyz.jpenilla.tabtps.common.command.commands.TickInfoCommand;
+import xyz.jpenilla.tabtps.common.service.MobCapService;
 import xyz.jpenilla.tabtps.common.service.TickTimeService;
 import xyz.jpenilla.tabtps.common.service.UserService;
+import xyz.jpenilla.tabtps.common.util.ConsoleAudience;
 import xyz.jpenilla.tabtps.common.util.Constants;
 import xyz.jpenilla.tabtps.common.util.TranslatableProvider;
 import xyz.jpenilla.tabtps.common.util.UpdateChecker;
@@ -62,6 +65,7 @@ import xyz.jpenilla.tabtps.forge.command.ForgeCommandManager;
 import xyz.jpenilla.tabtps.forge.command.ForgeConsoleCommander;
 import xyz.jpenilla.tabtps.forge.command.ForgePingCommand;
 import xyz.jpenilla.tabtps.forge.command.ForgeTickInfoCommandFormatter;
+import xyz.jpenilla.tabtps.forge.service.ForgeMobCapService;
 import xyz.jpenilla.tabtps.forge.service.ForgePermissions;
 import xyz.jpenilla.tabtps.forge.service.ForgeTickTimeService;
 import xyz.jpenilla.tabtps.forge.service.ForgeUserService;
@@ -72,11 +76,13 @@ public final class TabTPSForge implements TabTPSPlatform<ServerPlayer, ForgeUser
   private final Path dataDirectory = FMLPaths.CONFIGDIR.get().resolve("tabtps");
   private final ForgeAudiences audiences = new ForgeAudiences(this::server);
   private final ForgePermissions permissions = new ForgePermissions(this);
+  private final ForgeMobCapService mobCapService = new ForgeMobCapService();
   private final ForgeUserService userService;
   private final ForgeCommandManager commandManager;
   private final TabTPS tabTPS;
   private volatile @Nullable MinecraftServer server;
   private volatile ForgeTickTimeService tickTimeService = new ForgeTickTimeService(null);
+  private int ticks;
 
   public TabTPSForge() {
     TranslatableProvider.MOD_JAR_OVERRIDE = ModList.get().getModFileById("tabtps").getFile().getFilePath();
@@ -96,7 +102,7 @@ public final class TabTPSForge implements TabTPSPlatform<ServerPlayer, ForgeUser
       if (event.phase == TickEvent.Phase.START) {
         this.tickTimeService.tickStart();
       } else {
-        this.tickTimeService.tickEnd();
+        this.tickEnd(event.getServer());
       }
     });
     MinecraftForge.EVENT_BUS.addListener((PlayerEvent.PlayerLoggedInEvent event) -> {
@@ -124,8 +130,16 @@ public final class TabTPSForge implements TabTPSPlatform<ServerPlayer, ForgeUser
   private void serverStarted(final MinecraftServer server) {
     this.server = server;
     this.tickTimeService = new ForgeTickTimeService(server);
+    this.tabTPS.resetUptime();
     if (this.tabTPS.configManager().pluginSettings().updateChecker()) {
-      CompletableFuture.runAsync(() -> UpdateChecker.checkVersion(Constants.TABTPS_VERSION).forEach(this.logger::info));
+      CompletableFuture.runAsync(() -> UpdateChecker.checkVersion(Constants.TABTPS_VERSION, "forge", SharedConstants.getCurrentVersion().getName()).forEach(this.logger::info));
+    }
+  }
+
+  private void tickEnd(final MinecraftServer server) {
+    this.tickTimeService.tickEnd();
+    if (++this.ticks % 20 == 0) {
+      this.mobCapService.update(server);
     }
   }
 
@@ -136,15 +150,26 @@ public final class TabTPSForge implements TabTPSPlatform<ServerPlayer, ForgeUser
       this.userService.flush();
     }
     this.audiences.clearBossBars();
+    this.mobCapService.clear();
     this.server = null;
     this.tickTimeService = new ForgeTickTimeService(null);
   }
 
   private Commander commander(final CommandSourceStack source) {
     if (source.getEntity() instanceof ServerPlayer player) {
-      return new DelegateUser<>(this.userService.user(player), source);
+      final boolean elevated = this.elevatedSource(source, player);
+      return new DelegateUser<>(this.userService.user(player), source, permission -> elevated);
     }
-    return new ForgeConsoleCommander(source, this.audiences.source(source));
+    return new ForgeConsoleCommander(source, ConsoleAudience.wrap(this.tabTPS, this.audiences.source(source)));
+  }
+
+  private boolean elevatedSource(final CommandSourceStack source, final ServerPlayer player) {
+    final MinecraftServer current = source.getServer();
+    if (current == null) {
+      return false;
+    }
+    final int operator = current.getOperatorUserPermissionLevel();
+    return source.hasPermission(operator) && !player.hasPermissions(operator);
   }
 
   private CommandSourceStack source(final Commander commander) {
@@ -176,6 +201,11 @@ public final class TabTPSForge implements TabTPSPlatform<ServerPlayer, ForgeUser
 
   public @NonNull ForgeTickTimeService forgeTickTimeService() {
     return this.tickTimeService;
+  }
+
+  @Override
+  public @NonNull MobCapService mobCapService() {
+    return this.mobCapService;
   }
 
   @Override

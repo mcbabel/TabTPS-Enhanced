@@ -50,11 +50,15 @@ public final class TPSUtil {
   private TPSUtil() {
   }
 
-  private static @NonNull String formatDouble(final double value) {
+  public static @NonNull String formatDouble(final double value) {
     return FORMAT.format(value);
   }
 
   public static @NonNull Component coloredTps(final double tps, final Theme.@NonNull Colors colors) {
+    final Theme.Level level = colors.tpsLevel(tps);
+    if (level != null) {
+      return gradient(formatDouble(tps), level.color(), level.secondaryColor());
+    }
     final TextColor color1;
     final TextColor color2;
     if (tps >= 18.5) {
@@ -79,6 +83,10 @@ public final class TPSUtil {
   }
 
   public static @NonNull Component coloredMspt(final double mspt, final Theme.@NonNull Colors colors) {
+    final Theme.Level level = colors.msptLevel(mspt);
+    if (level != null) {
+      return gradient(formatDouble(mspt), level.color(), level.secondaryColor());
+    }
     final TextColor color1;
     final TextColor color2;
     if (mspt <= 25.0) {

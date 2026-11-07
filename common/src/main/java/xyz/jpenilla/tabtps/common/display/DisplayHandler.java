@@ -38,6 +38,7 @@ public final class DisplayHandler<D extends Display> {
   private transient final Function<DisplayConfig, D> displayFactory;
   private transient final int updateRate;
   private transient RunnableFuturePair<D> futurePair = null;
+  private transient Future<?> pendingStart = null;
   private boolean enabled = false;
 
   public DisplayHandler(
@@ -70,7 +71,25 @@ public final class DisplayHandler<D extends Display> {
     });
   }
 
+  public void startDisplay(final long delayMillis) {
+    if (delayMillis <= 0) {
+      this.startDisplay();
+      return;
+    }
+    this.stopDisplay();
+    this.pendingStart = this.tabTPS.executor().schedule(() -> {
+      this.pendingStart = null;
+      if (this.enabled && this.user.online()) {
+        this.startDisplay();
+      }
+    }, delayMillis, TimeUnit.MILLISECONDS);
+  }
+
   public void stopDisplay() {
+    if (this.pendingStart != null) {
+      this.pendingStart.cancel(false);
+      this.pendingStart = null;
+    }
     if (this.futurePair != null) {
       this.futurePair.future().cancel(false);
       this.futurePair.runnable().disable();

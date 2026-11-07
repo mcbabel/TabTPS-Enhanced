@@ -29,6 +29,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import org.incendo.cloud.CommandManager;
 import org.slf4j.Logger;
 import xyz.jpenilla.tabtps.common.command.Commander;
+import xyz.jpenilla.tabtps.common.service.MobCapService;
 import xyz.jpenilla.tabtps.common.service.RegionStatsService;
 import xyz.jpenilla.tabtps.common.service.TickTimeService;
 import xyz.jpenilla.tabtps.common.service.UserService;
@@ -43,6 +44,10 @@ public interface TabTPSPlatform<P, U extends User<P>> {
   @NonNull TickTimeService tickTimeService();
 
   default @Nullable RegionStatsService regionStatsService() {
+    return null;
+  }
+
+  default @Nullable MobCapService mobCapService() {
     return null;
   }
 

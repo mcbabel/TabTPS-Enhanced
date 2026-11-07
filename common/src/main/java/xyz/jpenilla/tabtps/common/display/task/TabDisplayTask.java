@@ -41,11 +41,13 @@ public final class TabDisplayTask implements Display {
     final Theme theme = tabTPS.configManager().theme(settings.theme());
     this.headerRenderer = ModuleRenderer.builder()
       .modules(tabTPS, tabTPS.configManager().theme(settings.theme()), user, settings.headerModules())
+      .format(tabTPS, tabTPS.configManager().theme(settings.theme()), user, settings.headerFormat())
       .separator(settings.separator())
       .moduleRenderFunction(ModuleRenderer.standardRenderFunction(theme))
       .build();
     this.footerRenderer = ModuleRenderer.builder()
       .modules(tabTPS, tabTPS.configManager().theme(settings.theme()), user, settings.footerModules())
+      .format(tabTPS, tabTPS.configManager().theme(settings.theme()), user, settings.footerFormat())
       .separator(settings.separator())
       .moduleRenderFunction(ModuleRenderer.standardRenderFunction(theme))
       .build();
@@ -58,10 +60,10 @@ public final class TabDisplayTask implements Display {
       this.user.tab().stopDisplay();
       return;
     }
-    if (this.headerRenderer.moduleCount() > 0) {
+    if (this.headerRenderer.hasContent()) {
       this.user.sendPlayerListHeader(this.headerRenderer.render());
     }
-    if (this.footerRenderer.moduleCount() > 0) {
+    if (this.footerRenderer.hasContent()) {
       this.user.sendPlayerListFooter(this.footerRenderer.render());
     }
   }

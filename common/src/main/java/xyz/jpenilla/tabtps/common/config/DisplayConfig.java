@@ -23,6 +23,8 @@
  */
 package xyz.jpenilla.tabtps.common.config;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
@@ -36,6 +38,9 @@ import static net.kyori.adventure.text.Component.space;
 @ConfigSerializable
 public final class DisplayConfig {
   private static final String SEPARATOR_COMMENT = "The text used to separate modules. Accepts MiniMessage (i.e. \" <gray>|</gray> \")";
+  private static final String FORMAT_COMMENT = "Optional custom text in MiniMessage format. When set, it replaces the module list above\n"
+    + "Use a module name as tag for its value and <name_label> for its label, i.e. \"<gray>The server runs at <tps> TPS, your ping is <ping>\"\n"
+    + "Leave empty (\"\") to keep the module list";
 
   @Comment("The permission required to use this display config\nCan be an empty string (\"\") to require no permission")
   private String permission = "tabtps.defaultdisplay";
@@ -91,6 +96,8 @@ public final class DisplayConfig {
     private boolean allow = true;
     private boolean enableOnLogin = false;
     private String modules = "tps,mspt,ping";
+    @Comment(FORMAT_COMMENT)
+    private String format = "";
     private String theme = "default";
 
     @Comment(SEPARATOR_COMMENT)
@@ -115,6 +122,10 @@ public final class DisplayConfig {
       return this.modules;
     }
 
+    public @NonNull String format() {
+      return this.format;
+    }
+
     @Override
     public @NonNull String theme() {
       return this.theme;
@@ -126,6 +137,8 @@ public final class DisplayConfig {
     private boolean allow = true;
     private boolean enableOnLogin = false;
     private String modules = "tps,mspt,ping";
+    @Comment(FORMAT_COMMENT)
+    private String format = "";
     private String theme = "default";
 
     @Comment("Available colors: [PINK, RED, GREEN, BLUE, YELLOW, PURPLE, WHITE]")
@@ -140,6 +153,9 @@ public final class DisplayConfig {
     @Comment(SEPARATOR_COMMENT)
     private Component separator = space();
 
+    @Comment("Seconds to wait after a player joins before the boss bar appears, e.g. so boss bars of other plugins are shown first\n0 shows it right away")
+    private int loginDelaySeconds = 0;
+
     @Override
     public @NonNull Component separator() {
       return this.separator;
@@ -157,6 +173,14 @@ public final class DisplayConfig {
 
     public @NonNull String modules() {
       return this.modules;
+    }
+
+    public @NonNull String format() {
+      return this.format;
+    }
+
+    public int loginDelaySeconds() {
+      return Math.max(0, this.loginDelaySeconds);
     }
 
     public @NonNull FillMode fillMode() {
@@ -186,6 +210,41 @@ public final class DisplayConfig {
       private BossBar.Color mediumPerformance = BossBar.Color.YELLOW;
       private BossBar.Color goodPerformance = BossBar.Color.GREEN;
 
+      @Comment("Optional custom color levels by how full the boss bar is, in percent. Leave empty ([]) to use the three colors above\n"
+        + "A level is used once the fill reaches its percent, the highest reached level wins, e.g.\n"
+        + "  levels=[{percent=0, color=BLUE}, {percent=30, color=GREEN}, {percent=60, color=YELLOW}, {percent=90, color=RED}]")
+      private List<Level> levels = new ArrayList<>();
+
+      public BossBar.@Nullable Color levelColor(final float progress) {
+        final double percent = progress * 100.0D;
+        Level best = null;
+        Level lowest = null;
+        for (final Level level : this.levels) {
+          if (percent >= level.percent() && (best == null || level.percent() > best.percent())) {
+            best = level;
+          }
+          if (lowest == null || level.percent() < lowest.percent()) {
+            lowest = level;
+          }
+        }
+        final Level chosen = best != null ? best : lowest;
+        return chosen == null ? null : chosen.color();
+      }
+
+      @ConfigSerializable
+      public static final class Level {
+        private double percent = 0;
+        private BossBar.Color color = BossBar.Color.WHITE;
+
+        public double percent() {
+          return this.percent;
+        }
+
+        public BossBar.@NonNull Color color() {
+          return this.color;
+        }
+      }
+
       public BossBar.@NonNull Color lowPerformance() {
         return this.lowPerformance;
       }
@@ -205,7 +264,11 @@ public final class DisplayConfig {
     private boolean allow = true;
     private boolean enableOnLogin = false;
     private String headerModules = "";
+    @Comment(FORMAT_COMMENT)
+    private String headerFormat = "";
     private String footerModules = "tps,mspt";
+    @Comment(FORMAT_COMMENT)
+    private String footerFormat = "";
     private String theme = "default";
 
     @Comment(SEPARATOR_COMMENT)
@@ -232,6 +295,14 @@ public final class DisplayConfig {
 
     public @NonNull String footerModules() {
       return this.footerModules;
+    }
+
+    public @NonNull String headerFormat() {
+      return this.headerFormat;
+    }
+
+    public @NonNull String footerFormat() {
+      return this.footerFormat;
     }
 
     @Override

@@ -25,50 +25,107 @@ package xyz.jpenilla.tabtps.common.util;
 
 import com.google.common.base.Charsets;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 public final class UpdateChecker {
   private static final JsonParser parser = new JsonParser();
+  private static final String PROJECT = "tabtps-folia";
 
   private UpdateChecker() {
   }
 
-  public static @NonNull List<String> checkVersion(final @NonNull String version) {
+  public static @NonNull List<String> checkVersion(final @NonNull String version, final @NonNull String loader, final @NonNull String minecraftVersion) {
     final JsonArray result;
     try {
-      result = parser.parse(new InputStreamReader(new URL("https://api.github.com/repos/MCbabel/TabTPS-Folia/releases").openStream(), Charsets.UTF_8)).getAsJsonArray();
-    } catch (final IOException exception) {
+      final String query = "loaders=" + encode("[\"" + loader + "\"]") + "&game_versions=" + encode("[\"" + minecraftVersion + "\"]");
+      final URLConnection connection = new URL("https://api.modrinth.com/v2/project/" + PROJECT + "/version?" + query).openConnection();
+      connection.setRequestProperty("User-Agent", "MCbabel/TabTPS-Folia/" + version);
+      connection.setConnectTimeout(10000);
+      connection.setReadTimeout(10000);
+      try (Reader reader = new InputStreamReader(connection.getInputStream(), Charsets.UTF_8)) {
+        result = parser.parse(reader).getAsJsonArray();
+      }
+    } catch (final IOException | RuntimeException exception) {
       return Collections.singletonList("Failed to look for updates: " + exception.getMessage());
     }
 
-    final Map<String, String> versionMap = new LinkedHashMap<>();
-    result.forEach(element -> versionMap.put(element.getAsJsonObject().get("tag_name").getAsString(), element.getAsJsonObject().get("html_url").getAsString()));
-    final List<String> versionList = new LinkedList<>(versionMap.keySet());
-    final String currentVersion = "v" + version;
-    if (versionList.get(0).equals(currentVersion)) {
+    final Set<String> newer = new LinkedHashSet<>();
+    String latestId = null;
+    for (final JsonElement element : result) {
+      final JsonObject object = element.getAsJsonObject();
+      if (!"release".equals(object.get("version_type").getAsString())) {
+        continue;
+      }
+      final String candidate = baseVersion(object.get("version_number").getAsString());
+      if (compare(candidate, baseVersion(version)) > 0) {
+        if (latestId == null) {
+          latestId = object.get("id").getAsString();
+        }
+        newer.add(candidate);
+      }
+    }
+    if (newer.isEmpty()) {
       return Collections.emptyList();
     }
+
+    final String latest = newer.iterator().next();
     final List<String> list = new ArrayList<>();
-    if (currentVersion.contains("SNAPSHOT")) {
-      list.add("This server is running a development build of TabTPS! (" + currentVersion + ")");
-      list.add("The latest official release is " + versionList.get(0));
-      return list;
-    }
-    final int versionsBehind = versionList.indexOf(currentVersion);
     list.add("There is an update available for TabTPS!");
-    list.add("This server is running version " + currentVersion + ", which is " + (versionsBehind == -1 ? "UNKNOWN" : versionsBehind) + " versions outdated.");
-    list.add("Download the latest version, " + versionList.get(0) + " from Modrinth at the link below:");
-    list.add("https://modrinth.com/plugin/tabtps-folia");
+    list.add("This server is running v" + version + ", the latest version for Minecraft " + minecraftVersion + " is v" + latest + " (" + newer.size() + " " + (newer.size() == 1 ? "version" : "versions") + " behind).");
+    list.add("Download it from Modrinth: https://modrinth.com/plugin/" + PROJECT + "/version/" + latestId);
     return list;
+  }
+
+  private static @NonNull String encode(final @NonNull String value) throws IOException {
+    return URLEncoder.encode(value, "UTF-8");
+  }
+
+  private static @NonNull String baseVersion(final @NonNull String version) {
+    final int end = indexOfAny(version, '+', '-');
+    return end == -1 ? version : version.substring(0, end);
+  }
+
+  private static int indexOfAny(final @NonNull String value, final char first, final char second) {
+    final int a = value.indexOf(first);
+    final int b = value.indexOf(second);
+    if (a == -1) {
+      return b;
+    }
+    return b == -1 ? a : Math.min(a, b);
+  }
+
+  static int compare(final @NonNull String first, final @NonNull String second) {
+    final String[] a = first.split("\\.");
+    final String[] b = second.split("\\.");
+    for (int i = 0; i < Math.max(a.length, b.length); i++) {
+      final int x = i < a.length ? parse(a[i]) : 0;
+      final int y = i < b.length ? parse(b[i]) : 0;
+      if (x != y) {
+        return Integer.compare(x, y);
+      }
+    }
+    return 0;
+  }
+
+  private static int parse(final @NonNull String part) {
+    try {
+      return Integer.parseInt(part);
+    } catch (final NumberFormatException e) {
+      return 0;
+    }
   }
 }

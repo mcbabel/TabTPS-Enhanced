@@ -23,6 +23,8 @@
  */
 package xyz.jpenilla.tabtps.common.config;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
@@ -69,6 +71,44 @@ public final class Theme {
     private TextColor goodPerformance = NamedTextColor.GREEN;
     private TextColor goodPerformanceSecondary = NamedTextColor.DARK_GREEN;
 
+    @Comment("Optional custom levels for TPS colors. Leave empty ([]) to use the three performance colors above\n"
+      + "A level is used when the TPS is at least its threshold, the highest matching threshold wins, e.g.\n"
+      + "  tps-levels=[{threshold=19.5, color=green, secondary-color=dark_green}, {threshold=17, color=yellow, secondary-color=gold}, {threshold=0, color=dark_red, secondary-color=red}]")
+    private List<Level> tpsLevels = new ArrayList<>();
+
+    @Comment("Optional custom levels for MSPT colors. Leave empty ([]) to use the three performance colors above\n"
+      + "A level is used when the MSPT is at most its threshold, the lowest matching threshold wins, e.g.\n"
+      + "  mspt-levels=[{threshold=20, color=green, secondary-color=dark_green}, {threshold=45, color=yellow, secondary-color=gold}, {threshold=1000, color=dark_red, secondary-color=red}]")
+    private List<Level> msptLevels = new ArrayList<>();
+
+    public @Nullable Level tpsLevel(final double tps) {
+      Level best = null;
+      Level lowest = null;
+      for (final Level level : this.tpsLevels) {
+        if (tps >= level.threshold() && (best == null || level.threshold() > best.threshold())) {
+          best = level;
+        }
+        if (lowest == null || level.threshold() < lowest.threshold()) {
+          lowest = level;
+        }
+      }
+      return best != null ? best : lowest;
+    }
+
+    public @Nullable Level msptLevel(final double mspt) {
+      Level best = null;
+      Level highest = null;
+      for (final Level level : this.msptLevels) {
+        if (mspt <= level.threshold() && (best == null || level.threshold() < best.threshold())) {
+          best = level;
+        }
+        if (highest == null || level.threshold() > highest.threshold()) {
+          highest = level;
+        }
+      }
+      return best != null ? best : highest;
+    }
+
     public TextColor text() {
       return this.text;
     }
@@ -99,6 +139,25 @@ public final class Theme {
 
     public @NonNull TextColor goodPerformanceSecondary() {
       return this.goodPerformanceSecondary;
+    }
+  }
+
+  @ConfigSerializable
+  public static final class Level {
+    private double threshold = 0;
+    private TextColor color = NamedTextColor.WHITE;
+    private TextColor secondaryColor = NamedTextColor.WHITE;
+
+    public double threshold() {
+      return this.threshold;
+    }
+
+    public @NonNull TextColor color() {
+      return this.color;
+    }
+
+    public @NonNull TextColor secondaryColor() {
+      return this.secondaryColor;
     }
   }
 }

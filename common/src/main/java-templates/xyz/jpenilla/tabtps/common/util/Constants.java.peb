@@ -41,6 +41,8 @@ public final class Constants {
   public static final String PERMISSION_COMMAND_PING = PERMISSION_ROOT + DOT + "ping";
   public static final String PERMISSION_COMMAND_PING_OTHERS = PERMISSION_ROOT + DOT + "ping" + DOT + "others";
   public static final String PERMISSION_COMMAND_RELOAD = PERMISSION_ROOT + DOT + "reload";
+  public static final String PERMISSION_COMMAND_MOBCAPS = PERMISSION_ROOT + DOT + "mobcaps";
+  public static final String PERMISSION_COMMAND_TOGGLE_OTHERS = PERMISSION_ROOT + DOT + "toggle" + DOT + "others";
 
   public static final String PERMISSION_COMMAND_ERROR_HOVER_STACKTRACE = PERMISSION_ROOT + DOT + "command" + DOT + "hover_stacktrace";
 }

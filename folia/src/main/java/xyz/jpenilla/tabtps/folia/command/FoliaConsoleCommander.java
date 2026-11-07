@@ -28,19 +28,21 @@ import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.command.CommandSender;
 import org.checkerframework.checker.nullness.qual.NonNull;
+import xyz.jpenilla.tabtps.common.TabTPS;
 import xyz.jpenilla.tabtps.common.command.ConsoleCommander;
+import xyz.jpenilla.tabtps.common.util.ConsoleAudience;
 
 public final class FoliaConsoleCommander implements ConsoleCommander {
   private final CommandSender commandSender;
   private final Audience audience;
 
-  private FoliaConsoleCommander(final @NonNull BukkitAudiences audiences, final @NonNull CommandSender sender) {
+  private FoliaConsoleCommander(final @NonNull TabTPS tabTPS, final @NonNull BukkitAudiences audiences, final @NonNull CommandSender sender) {
     this.commandSender = sender;
-    this.audience = audiences.sender(sender);
+    this.audience = ConsoleAudience.wrap(tabTPS, audiences.sender(sender));
   }
 
-  public static @NonNull FoliaConsoleCommander from(final @NonNull BukkitAudiences audiences, final @NonNull CommandSender sender) {
-    return new FoliaConsoleCommander(audiences, sender);
+  public static @NonNull FoliaConsoleCommander from(final @NonNull TabTPS tabTPS, final @NonNull BukkitAudiences audiences, final @NonNull CommandSender sender) {
+    return new FoliaConsoleCommander(tabTPS, audiences, sender);
   }
 
   @Override

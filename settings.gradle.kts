@@ -16,6 +16,9 @@ dependencyResolutionManagement {
       mavenContent { snapshotsOnly() }
     }
     maven("https://repo.papermc.io/repository/maven-public/")
+    maven("https://repo.extendedclip.com/releases/") {
+      mavenContent { includeGroup("me.clip") }
+    }
     maven("https://repo.spongepowered.org/repository/maven-public/")
     maven("https://repo.spongepowered.org/repository/maven-snapshots/") {
       mavenContent { snapshotsOnly() }

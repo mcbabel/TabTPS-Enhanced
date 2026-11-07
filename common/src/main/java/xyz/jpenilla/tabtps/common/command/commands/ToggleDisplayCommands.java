@@ -23,6 +23,8 @@
  */
 package xyz.jpenilla.tabtps.common.command.commands;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Function;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
@@ -30,6 +32,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import org.incendo.cloud.Command;
 import org.incendo.cloud.context.CommandContext;
 import org.incendo.cloud.permission.PredicatePermission;
+import org.incendo.cloud.suggestion.SuggestionProvider;
 import xyz.jpenilla.tabtps.common.Messages;
 import xyz.jpenilla.tabtps.common.TabTPS;
 import xyz.jpenilla.tabtps.common.User;
@@ -37,16 +40,19 @@ import xyz.jpenilla.tabtps.common.command.Commander;
 import xyz.jpenilla.tabtps.common.command.Commands;
 import xyz.jpenilla.tabtps.common.command.TabTPSCommand;
 import xyz.jpenilla.tabtps.common.config.DisplayConfig;
+import xyz.jpenilla.tabtps.common.display.DisplayHandler;
 import xyz.jpenilla.tabtps.common.util.Constants;
 import xyz.jpenilla.tabtps.common.util.TranslatableProvider;
 
 import static net.kyori.adventure.text.Component.space;
 import static net.kyori.adventure.text.Component.text;
 import static net.kyori.adventure.text.event.ClickEvent.runCommand;
+import static net.kyori.adventure.text.format.NamedTextColor.GRAY;
 import static net.kyori.adventure.text.format.NamedTextColor.GREEN;
 import static net.kyori.adventure.text.format.NamedTextColor.RED;
 import static net.kyori.adventure.text.format.TextDecoration.ITALIC;
 import static org.incendo.cloud.minecraft.extras.RichDescription.richDescription;
+import static org.incendo.cloud.parser.standard.StringParser.stringParser;
 
 public final class ToggleDisplayCommands extends TabTPSCommand {
   public ToggleDisplayCommands(final @NonNull TabTPS tabTPS, final @NonNull Commands commands) {
@@ -55,25 +61,70 @@ public final class ToggleDisplayCommands extends TabTPSCommand {
 
   @Override
   public void register() {
-    final Command.Builder<Commander> toggle = this.commands.rootBuilder().literal("toggle");
+    this.register("tab", DisplayConfig::tabSettings, User::tab, Messages.COMMAND_TOGGLE_TAB_DESCRIPTION, Messages.COMMAND_TOGGLE_TAB_ENABLED, Messages.COMMAND_TOGGLE_TAB_DISABLED);
+    this.register("actionbar", DisplayConfig::actionBarSettings, User::actionBar, Messages.COMMAND_TOGGLE_ACTIONBAR_DESCRIPTION, Messages.COMMAND_TOGGLE_ACTIONBAR_ENABLED, Messages.COMMAND_TOGGLE_ACTIONBAR_DISABLED);
+    this.register("bossbar", DisplayConfig::bossBarSettings, User::bossBar, Messages.COMMAND_TOGGLE_BOSSBAR_DESCRIPTION, Messages.COMMAND_TOGGLE_BOSSBAR_ENABLED, Messages.COMMAND_TOGGLE_BOSSBAR_DISABLED);
+  }
 
-    this.commands.register(toggle.literal("tab")
-      .senderType(User.TYPE)
-      .permission(PredicatePermission.of(user -> this.togglePermission(user, DisplayConfig::tabSettings)))
-      .commandDescription(richDescription(Messages.COMMAND_TOGGLE_TAB_DESCRIPTION.plain()))
-      .handler(this::toggleTab));
+  private void register(
+    final @NonNull String display,
+    final @NonNull Function<DisplayConfig, DisplayConfig.DisplaySettings> settings,
+    final @NonNull Function<User<?>, DisplayHandler<?>> handler,
+    final @NonNull TranslatableProvider description,
+    final @NonNull TranslatableProvider enabled,
+    final @NonNull TranslatableProvider disabled
+  ) {
+    final Command.Builder<Commander> toggle = this.commands.rootBuilder().literal("toggle").literal(display);
+    final String command = "/tabtps toggle " + display;
 
-    this.commands.register(toggle.literal("actionbar")
+    this.commands.register(toggle
       .senderType(User.TYPE)
-      .permission(PredicatePermission.of(user -> this.togglePermission(user, DisplayConfig::actionBarSettings)))
-      .commandDescription(richDescription(Messages.COMMAND_TOGGLE_ACTIONBAR_DESCRIPTION.plain()))
-      .handler(this::toggleActionBar));
+      .permission(PredicatePermission.<Commander>of(sender -> !(sender instanceof User) || this.togglePermission((User<?>) sender, settings)))
+      .commandDescription(richDescription(description.plain()))
+      .handler(context -> this.toggle(context.sender(), handler.apply(context.sender()), command, enabled, disabled)));
 
-    this.commands.register(toggle.literal("bossbar")
-      .senderType(User.TYPE)
-      .permission(PredicatePermission.of(user -> this.togglePermission(user, DisplayConfig::bossBarSettings)))
-      .commandDescription(richDescription(Messages.COMMAND_TOGGLE_BOSSBAR_DESCRIPTION.plain()))
-      .handler(this::toggleBossBar));
+    this.commands.register(toggle
+      .required("player", stringParser(), SuggestionProvider.blockingStrings((context, input) -> this.playerNames()))
+      .permission(Constants.PERMISSION_COMMAND_TOGGLE_OTHERS)
+      .commandDescription(richDescription(description.plain()))
+      .handler(context -> this.toggleOther(context, settings, handler, command, enabled, disabled)));
+  }
+
+  private @NonNull List<String> playerNames() {
+    final List<String> names = new ArrayList<>();
+    for (final User<?> user : this.tabTPS.platform().userService().onlineUsers()) {
+      names.add(user.name());
+    }
+    return names;
+  }
+
+  private void toggleOther(
+    final @NonNull CommandContext<Commander> context,
+    final @NonNull Function<DisplayConfig, DisplayConfig.DisplaySettings> settings,
+    final @NonNull Function<User<?>, DisplayHandler<?>> handler,
+    final @NonNull String command,
+    final @NonNull TranslatableProvider enabled,
+    final @NonNull TranslatableProvider disabled
+  ) {
+    final String name = context.get("player");
+    User<?> target = null;
+    for (final User<?> user : this.tabTPS.platform().userService().onlineUsers()) {
+      if (user.name().equalsIgnoreCase(name)) {
+        target = user;
+        break;
+      }
+    }
+    if (target == null || !this.togglePermission(target, settings)) {
+      context.sender().sendMessage(text()
+        .append(Constants.PREFIX)
+        .append(space())
+        .append(Messages.MISC_COMMAND_TEXT_NO_PLAYERS_FOUND.styled(RED, text(name))));
+      return;
+    }
+    final Component feedback = this.toggle(target, handler.apply(target), command, enabled, disabled);
+    if (!(context.sender() instanceof User) || !((User<?>) context.sender()).uuid().equals(target.uuid())) {
+      context.sender().sendMessage(feedback.append(text(" (" + target.name() + ")", GRAY)));
+    }
   }
 
   private boolean togglePermission(final @NonNull User<?> sender, final @NonNull Function<DisplayConfig, DisplayConfig.DisplaySettings> function) {
@@ -82,46 +133,26 @@ public final class ToggleDisplayCommands extends TabTPSCommand {
       .orElse(false);
   }
 
-  private void toggleTab(final @NonNull CommandContext<User<?>> context) {
-    final User<?> user = context.sender();
-    if (user.tab().enabled()) {
-      user.tab().stopDisplay();
-      user.tab().enabled(false);
-      user.sendMessage(feedbackMessage("/tabtps toggle tab", Messages.COMMAND_TOGGLE_TAB_DISABLED, RED));
+  private @NonNull Component toggle(
+    final @NonNull User<?> user,
+    final @NonNull DisplayHandler<?> display,
+    final @NonNull String command,
+    final @NonNull TranslatableProvider enabled,
+    final @NonNull TranslatableProvider disabled
+  ) {
+    final Component feedback;
+    if (display.enabled()) {
+      display.stopDisplay();
+      display.enabled(false);
+      feedback = feedbackMessage(command, disabled, RED);
     } else {
-      user.tab().enabled(true);
-      user.tab().startDisplay();
-      user.sendMessage(feedbackMessage("/tabtps toggle tab", Messages.COMMAND_TOGGLE_TAB_ENABLED, GREEN));
+      display.enabled(true);
+      display.startDisplay();
+      feedback = feedbackMessage(command, enabled, GREEN);
     }
+    user.sendMessage(feedback);
     user.markDirty();
-  }
-
-  private void toggleActionBar(final @NonNull CommandContext<User<?>> context) {
-    final User<?> user = context.sender();
-    if (user.actionBar().enabled()) {
-      user.actionBar().stopDisplay();
-      user.actionBar().enabled(false);
-      user.sendMessage(feedbackMessage("/tabtps toggle actionbar", Messages.COMMAND_TOGGLE_ACTIONBAR_DISABLED, RED));
-    } else {
-      user.actionBar().enabled(true);
-      user.actionBar().startDisplay();
-      user.sendMessage(feedbackMessage("/tabtps toggle actionbar", Messages.COMMAND_TOGGLE_ACTIONBAR_ENABLED, GREEN));
-    }
-    user.markDirty();
-  }
-
-  private void toggleBossBar(final @NonNull CommandContext<User<?>> context) {
-    final User<?> user = context.sender();
-    if (user.bossBar().enabled()) {
-      user.bossBar().stopDisplay();
-      user.bossBar().enabled(false);
-      user.sendMessage(feedbackMessage("/tabtps toggle bossbar", Messages.COMMAND_TOGGLE_BOSSBAR_DISABLED, RED));
-    } else {
-      user.bossBar().enabled(true);
-      user.bossBar().startDisplay();
-      user.sendMessage(feedbackMessage("/tabtps toggle bossbar", Messages.COMMAND_TOGGLE_BOSSBAR_ENABLED, GREEN));
-    }
-    user.markDirty();
+    return feedback;
   }
 
   private static @NonNull Component feedbackMessage(final @NonNull String command, final @NonNull TranslatableProvider translatable, final @NonNull TextColor color) {

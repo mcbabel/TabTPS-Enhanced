@@ -51,6 +51,7 @@ public final class BossBarDisplayTask implements Display {
     final Theme theme = tabTPS.configManager().theme(settings.theme());
     this.renderer = ModuleRenderer.builder()
       .modules(tabTPS, theme, user, settings.modules())
+      .format(tabTPS, theme, user, settings.format())
       .separator(settings.separator())
       .moduleRenderFunction(ModuleRenderer.standardRenderFunction(theme))
       .build();
@@ -100,6 +101,10 @@ public final class BossBarDisplayTask implements Display {
   }
 
   private BossBar.@NonNull Color color() {
+    final BossBar.Color levelColor = this.settings.colors().levelColor(this.progress());
+    if (levelColor != null) {
+      return levelColor;
+    }
     switch (this.settings.fillMode()) {
       case MSPT:
       case REVERSE_MSPT:

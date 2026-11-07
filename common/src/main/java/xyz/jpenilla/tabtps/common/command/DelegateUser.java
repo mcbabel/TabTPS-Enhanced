@@ -24,6 +24,7 @@
 package xyz.jpenilla.tabtps.common.command;
 
 import java.util.UUID;
+import java.util.function.Predicate;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -33,13 +34,23 @@ import xyz.jpenilla.tabtps.common.User;
 public final class DelegateUser<U, C> implements User<U> {
   private final User<U> user;
   private final C c;
+  private final Predicate<String> sourcePermissions;
 
   public DelegateUser(
     final User<U> user,
     final C c
   ) {
+    this(user, c, permission -> false);
+  }
+
+  public DelegateUser(
+    final User<U> user,
+    final C c,
+    final Predicate<String> sourcePermissions
+  ) {
     this.user = user;
     this.c = c;
+    this.sourcePermissions = sourcePermissions;
   }
 
   public C c() {
@@ -53,6 +64,11 @@ public final class DelegateUser<U, C> implements User<U> {
   @Override
   public @NonNull UUID uuid() {
     return this.user.uuid();
+  }
+
+  @Override
+  public @NonNull String name() {
+    return this.user.name();
   }
 
   @Override
@@ -82,7 +98,7 @@ public final class DelegateUser<U, C> implements User<U> {
 
   @Override
   public boolean hasPermission(final @NonNull String permissionString) {
-    return this.user.hasPermission(permissionString);
+    return this.user.hasPermission(permissionString) || this.sourcePermissions.test(permissionString);
   }
 
   @Override

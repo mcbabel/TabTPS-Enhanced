@@ -24,6 +24,7 @@
 package xyz.jpenilla.tabtps.common;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -35,6 +36,7 @@ import xyz.jpenilla.tabtps.common.command.TabTPSCommand;
 import xyz.jpenilla.tabtps.common.command.commands.AboutCommand;
 import xyz.jpenilla.tabtps.common.command.commands.HelpCommand;
 import xyz.jpenilla.tabtps.common.command.commands.MemoryCommand;
+import xyz.jpenilla.tabtps.common.command.commands.MobCapsCommand;
 import xyz.jpenilla.tabtps.common.command.commands.PingCommand;
 import xyz.jpenilla.tabtps.common.command.commands.ReloadCommand;
 import xyz.jpenilla.tabtps.common.command.commands.ToggleDisplayCommands;
@@ -49,6 +51,7 @@ public final class TabTPS {
   private final ConfigManager configManager;
   private final ScheduledExecutorService executor;
   private final Commands commands;
+  private volatile long startedAt = System.currentTimeMillis();
 
   public TabTPS(final @NonNull TabTPSPlatform<?, ?> platform) {
     this.platform = platform;
@@ -96,7 +99,8 @@ public final class TabTPS {
       new ToggleDisplayCommands(this, this.commands),
       new AboutCommand(this, this.commands),
       new PingCommand(this, this.commands),
-      new MemoryCommand(this, this.commands)
+      new MemoryCommand(this, this.commands),
+      new MobCapsCommand(this, this.commands)
     ).forEach(TabTPSCommand::register);
   }
 
@@ -115,6 +119,14 @@ public final class TabTPS {
       }
     }
     return Optional.empty();
+  }
+
+  public @NonNull Duration uptime() {
+    return Duration.ofMillis(System.currentTimeMillis() - this.startedAt);
+  }
+
+  public void resetUptime() {
+    this.startedAt = System.currentTimeMillis();
   }
 
   public @NonNull ScheduledExecutorService executor() {

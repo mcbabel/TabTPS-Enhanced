@@ -37,6 +37,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.framework.qual.DefaultQualifier;
@@ -186,7 +187,12 @@ public abstract class UserService<P, U extends User<P>> {
           pair.second().enabled(true);
         }
       });
-      this.startEnabledDisplays(user);
+      final long bossBarDelay = TimeUnit.SECONDS.toMillis(config.bossBarSettings().loginDelaySeconds());
+      user.displays().forEach(display -> {
+        if (display.enabled()) {
+          display.startDisplay(display == user.bossBar() ? bossBarDelay : 0L);
+        }
+      });
     });
   }
 

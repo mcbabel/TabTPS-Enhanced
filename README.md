@@ -58,6 +58,11 @@ These modules can be used in display configs:
 | `cpu` | CPU usage | same |
 | `memory` | Memory usage | same |
 | `players` | Online player count | same |
+| `uptime` | Time since the server started, e.g. `14:15:16` or `4d 14:15:16` | same |
+| `mob_caps` | Mob cap usage of the player's world for every category | `N/A` on Folia and Canvas |
+| `mob_cap_<category>` | One category, e.g. `mob_cap_monster`, `mob_cap_creature` | `N/A` on Folia and Canvas |
+
+Mob cap categories: `monster`, `creature`, `ambient`, `axolotls`, `underground_water_creature`, `water_creature`, `water_ambient`. On Forge the values come straight from Minecraft's spawner, on Paper, Purpur, Leaf and Spigot they are counted once a second from the server's entities and the chunks around players. Folia ticks mob caps per region and does not allow counting a whole world, so there the mob cap modules show `N/A`.
 
 ### Live Information Displays
 
@@ -73,7 +78,49 @@ These modules can be used in display configs:
 * Command: ``/tabtps toggle bossbar``
 * ![boss bar](https://i.postimg.cc/xCJnGYfb/bossbar.png)
 
-Configure display modules and themes in `plugins/TabTPS/display-configs/` and `plugins/TabTPS/themes/`.
+Configure display modules and themes in `plugins/TabTPS/display-configs/` and `plugins/TabTPS/themes/` (`config/tabtps/` on Forge).
+
+### Optional settings
+
+Everything below is off by default; without changing a config TabTPS behaves exactly like before.
+
+#### Custom text
+Each display has a `format` (tab list: `header-format` and `footer-format`) that replaces its module list with your own [MiniMessage](https://docs.advntr.dev/minimessage/format.html) text. Module names work as tags for their value, `<name_label>` gives the translated label:
+```hocon
+format="<gray>The server runs at <tps> TPS, your ping is <ping>, up for <uptime>"
+footer-format="<tps_label>: <tps> <dark_gray>| <gray><mob_caps_label>: <mob_cap_monster>"
+```
+
+#### More color levels
+Themes take optional `tps-levels` and `mspt-levels`, the boss bar takes optional `levels` by fill percent:
+```hocon
+tps-levels=[{threshold=19.5, color=green, secondary-color=dark_green}, {threshold=17, color=yellow, secondary-color=gold}, {threshold=0, color=dark_red, secondary-color=red}]
+levels=[{percent=0, color=BLUE}, {percent=30, color=GREEN}, {percent=60, color=YELLOW}, {percent=90, color=RED}]
+```
+The boss bar also follows `/tick rate` on servers that support it, so a full bar always means the target tick time.
+
+#### Boss bar delay
+`login-delay-seconds` in the boss bar settings waits that many seconds after a player joins before the boss bar appears, e.g. so boss bars of other plugins come first.
+
+#### Plain console output
+`console-colors=false` in `main.conf` turns off colors and gradients for command output in the server console. In the console `/memory` also prints the used, allocated and maximum memory behind each bar.
+
+### PlaceholderAPI
+
+If [PlaceholderAPI](https://modrinth.com/plugin/placeholderapi) is installed, TabTPS registers these placeholders by itself (plugin only, not Forge):
+
+| Placeholder | Value |
+|---|---|
+| `%tabtps_tps%`, `%tabtps_tps_5s%`, `_1m`, `_5m`, `_15m` | TPS (of the player's region on Folia) |
+| `%tabtps_mspt%` | MSPT (of the player's region on Folia) |
+| `%tabtps_ping%` | Player ping |
+| `%tabtps_players%`, `%tabtps_max_players%` | Player count |
+| `%tabtps_uptime%` | Server uptime |
+| `%tabtps_lowest_region_tps%`, `%tabtps_median_region_tps%`, `%tabtps_highest_region_tps%` | Region TPS on Folia, `N/A` elsewhere |
+| `%tabtps_cpu_system%`, `%tabtps_cpu_process%` | CPU usage in percent |
+| `%tabtps_memory_used%`, `%tabtps_memory_allocated%`, `%tabtps_memory_max%` | Memory in MB |
+
+Add `_colored` to `tps`, `mspt`, `ping` and the region placeholders to get TabTPS' colors, e.g. `%tabtps_tps_colored%`.
 
 ### Commands
 
@@ -94,6 +141,16 @@ Configure display modules and themes in `plugins/TabTPS/display-configs/` and `p
 * ![ping command](https://i.imgur.com/0agY7lB.png)
 * ![ping all](https://i.imgur.com/t1lBt2b.png)
 
+#### Toggle commands
+* Commands: ``/tabtps toggle tab``, ``/tabtps toggle actionbar``, ``/tabtps toggle bossbar``, each optionally with a player name, e.g. ``/tabtps toggle bossbar Steve``
+* Permission ``tabtps.toggle.others`` is needed to toggle displays of other players
+* Works with ``/execute as <player> run tabtps toggle ...`` from command blocks, the console or data packs; the permissions of whoever runs the command count
+
+#### Mob caps command
+* Command: ``/tabtps mobcaps``
+* Lists the mob caps of every world and category
+* Permission required: ``tabtps.mobcaps``
+
 #### Reload command
 * Command: ``/tabtps reload``
 * Permission required: ``tabtps.reload``
@@ -101,6 +158,10 @@ Configure display modules and themes in `plugins/TabTPS/display-configs/` and `p
 ### Metrics
 
 The plugin sends anonymous usage statistics to [bStats](https://bstats.org). Server owners can turn this off in `plugins/bStats/config.yml`.
+
+### Update checker
+
+On startup TabTPS asks Modrinth whether a newer version exists for your platform and Minecraft version, and only then prints a hint. Turn it off with `update-checker=false` in `main.conf`.
 
 ## Building
 

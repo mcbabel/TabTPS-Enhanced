@@ -40,6 +40,7 @@ public final class ActionBarDisplayTask implements Display {
     final Theme theme = tabTPS.configManager().theme(settings.theme());
     this.renderer = ModuleRenderer.builder()
       .modules(tabTPS, theme, user, settings.modules())
+      .format(tabTPS, theme, user, settings.format())
       .separator(settings.separator())
       .moduleRenderFunction(ModuleRenderer.standardRenderFunction(theme))
       .build();

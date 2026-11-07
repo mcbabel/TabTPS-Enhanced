@@ -61,6 +61,13 @@ public final class PluginSettings {
   @Comment("Colors used in the command help menus")
   private HelpColors helpColors = new HelpColors();
 
+  @Comment("Should command output in the server console keep its colors and gradients?\nSet to false for consoles that cannot show colors, the output is then plain text")
+  private boolean consoleColors = true;
+
+  public boolean consoleColors() {
+    return this.consoleColors;
+  }
+
   public @NonNull HelpColors helpColors() {
     return this.helpColors;
   }
