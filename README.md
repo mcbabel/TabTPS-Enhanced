@@ -4,13 +4,15 @@
 
 Shows TPS, MSPT and other server stats in the tab list, action bar and boss bar. On Folia every player sees the values of the region they are in, not a server-wide average.
 
-Started as a Folia fork of [TabTPS by jpenilla](https://github.com/jpenilla/TabTPS). Since 1.2.0 it also runs on Canvas, Purpur, Leaf and Spigot.
+Started as a Folia fork of [TabTPS by jpenilla](https://github.com/jpenilla/TabTPS). Since 1.2.0 it also runs on Canvas, Purpur, Leaf and Spigot, and as a Forge mod.
 
 Download: [Modrinth](https://modrinth.com/plugin/tabtps-folia) or [GitHub releases](https://github.com/MCbabel/TabTPS-Folia/releases)
 
 ## Platforms
 
-One jar for all of them, requires **Java 17+** and Minecraft **1.20 – 26.3**:
+### Plugin
+
+One jar for all of these servers, requires **Java 17+** and Minecraft **1.20 – 26.3**:
 
 | Server | Tick data | Tested on |
 |---|---|---|
@@ -21,6 +23,17 @@ One jar for all of them, requires **Java 17+** and Minecraft **1.20 – 26.3**:
 | [Spigot](https://www.spigotmc.org) | global | 1.20.1, 1.21.1, 1.21.4, 26.3 |
 
 The plugin detects at startup whether the server ticks regions and picks its tick data source accordingly. Spigot has no Paper API, so there the global TPS/MSPT are read directly from the server.
+
+### Forge mod
+
+A Forge mod needs one jar per Minecraft version:
+
+| Minecraft | Forge | Java | Tested on |
+|---|---|---|---|
+| 26.3 | 66+ | 25 | dedicated server, singleplayer |
+| 1.20.1 | 47+ | 17 | dedicated server, singleplayer |
+
+Put the jar into the `mods/` folder. It only runs on the server side: players do not need it to join a server, and in singleplayer it runs on the built-in server. The config lives in `config/tabtps/`. Permissions go through Forge's permission API, so permission mods that hook into it (for example LuckPerms) can grant them; without one, the display and command permissions default to operators. In singleplayer the world owner always has every permission, so the displays work without cheats.
 
 ## Features
 
@@ -96,6 +109,8 @@ The plugin sends anonymous usage statistics to [bStats](https://bstats.org). Ser
 ```
 
 The built JAR will be at `folia/build/libs/tabtps-folia-*.jar`.
+
+The Forge mods build with `./gradlew :tabtps-forge-26-3:build` and `./gradlew :tabtps-forge-1-20-1:build` and end up in `forge/<version>/build/libs/tabtps-forge-mc<version>-*.jar`. For 1.20.1 that jar is renamed to Forge's runtime (SRG) names; the `-mojmap` jar next to it is only for Forge's development client.
 
 ### Notes on the build
 

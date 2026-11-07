@@ -30,6 +30,8 @@ adventurePlatformMod = "6.8.0"
 mixin = "0.8.7"
 neoforge = "21.11.6-beta"
 neoForm = "1.21.11-20251209.172050"
+forge263 = "26.3-66.1.5"
+forge1201 = "1.20.1-47.4.28"
 
 # buildSrc
 indra = "4.0.0"
@@ -41,6 +43,7 @@ adventureBom = { group = "net.kyori", name = "adventure-bom", version.ref = "adv
 adventureApi = { group = "net.kyori", name = "adventure-api" }
 adventureTextSerializerLegacy = { group = "net.kyori", name = "adventure-text-serializer-legacy", version.ref = "adventure" }
 adventureTextSerializerPlain = { group = "net.kyori", name = "adventure-text-serializer-plain", version.ref = "adventure" }
+adventureTextSerializerGson = { group = "net.kyori", name = "adventure-text-serializer-gson", version.ref = "adventure" }
 adventureSerializerConfigurate4 = { group = "net.kyori", name = "adventure-serializer-configurate4", version.ref = "adventure" }
 adventureTextFeaturePagination = { group = "net.kyori", name = "adventure-text-feature-pagination", version.ref = "adventurePagination" }
 adventurePlatformBukkit = { group = "net.kyori", name = "adventure-platform-bukkit", version.ref = "adventurePlatform" }
@@ -51,6 +54,7 @@ minimessage = { group = "net.kyori", name = "adventure-text-minimessage", versio
 cloudBom = { group = "org.incendo", name = "cloud-bom", version.ref = "cloud" }
 cloudMinecraftBom = { module = "org.incendo:cloud-minecraft-bom", version.ref = "cloudMinecraft" }
 cloudCore = { group = "org.incendo", name = "cloud-core" }
+cloudBrigadier = { group = "org.incendo", name = "cloud-brigadier" }
 cloudMinecraftExtras = { group = "org.incendo", name = "cloud-minecraft-extras", version.ref = "cloudMinecraft" }
 cloudPaper = { group = "org.incendo", name = "cloud-paper" }
 cloudSponge = { group = "org.incendo", name = "cloud-sponge", version.ref = "cloudSponge" }

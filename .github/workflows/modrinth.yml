@@ -56,4 +56,4 @@ jobs:
             echo "MODRINTH_TOKEN secret is not set"
             exit 1
           fi
-          ./gradlew :tabtps-folia:publishModrinth --console=plain
+          ./gradlew publishModrinth --console=plain
