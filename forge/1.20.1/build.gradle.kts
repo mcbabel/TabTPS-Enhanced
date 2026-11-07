@@ -1,3 +1,5 @@
+import me.modmuss50.mpp.platforms.modrinth.ModrinthEnvironment
+
 plugins {
   id("tabtps.platform.shadow")
   id("net.minecraftforge.gradle")
@@ -97,6 +99,7 @@ publishMods.displayName.set("TabTPS Folia ${project.version} (Forge $minecraftVe
 publishMods.version.set("${project.version}+forge-$minecraftVersion")
 
 publishMods.modrinth {
+  environment = ModrinthEnvironment.SERVER_ONLY
   minecraftVersions.add(minecraftVersion)
   modLoaders.add("forge")
 }
