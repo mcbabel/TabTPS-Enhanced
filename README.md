@@ -139,6 +139,8 @@ testservers/test.sh folia-26.3 purpur-1.21.10
 testservers/test.sh all
 ```
 
+`forge-*` entries install the server with the Forge installer and put the mod into `mods/`. `testservers/forge-client` starts Forge's development client straight into a singleplayer world, for example `./gradlew -p testservers/forge-client runClient`, or with `-PforgeVersion=1.20.1-47.4.28 -PjavaVersion=17 -Pmappings=1.20.1` for 1.20.1. It loads whatever jar is in `testservers/forge-client/run/<forge version>/mods/` and expects a world called `tabtps-test` in `saves/`.
+
 Releases are published to Modrinth by `.github/workflows/modrinth.yml` as soon as a GitHub release is published.
 
 ## Credits

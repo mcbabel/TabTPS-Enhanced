@@ -21,3 +21,6 @@ plans/
 
 /testservers/work/
 /testservers/logs/
+/testservers/forge-client/run/
+/testservers/forge-client/.gradle/
+/testservers/forge-client/build/
