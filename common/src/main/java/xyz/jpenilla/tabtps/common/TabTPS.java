@@ -41,6 +41,7 @@ import xyz.jpenilla.tabtps.common.command.commands.ToggleDisplayCommands;
 import xyz.jpenilla.tabtps.common.config.ConfigManager;
 import xyz.jpenilla.tabtps.common.config.DisplayConfig;
 import xyz.jpenilla.tabtps.common.util.CPUMonitor;
+import xyz.jpenilla.tabtps.common.util.DaemonThreadFactory;
 
 public final class TabTPS {
   private final TabTPSPlatform<?, ?> platform;
@@ -55,7 +56,7 @@ public final class TabTPS {
       Messages.load();
       this.configManager = new ConfigManager(platform.dataDirectory());
       this.configManager.load();
-      final ScheduledThreadPoolExecutor ex = new ScheduledThreadPoolExecutor(4);
+      final ScheduledThreadPoolExecutor ex = new ScheduledThreadPoolExecutor(4, new DaemonThreadFactory("TabTPS-Worker"));
       ex.setRemoveOnCancelPolicy(true);
       this.executor = Executors.unconfigurableScheduledExecutorService(ex);
       this.commands = new Commands(this, platform.commandManager());

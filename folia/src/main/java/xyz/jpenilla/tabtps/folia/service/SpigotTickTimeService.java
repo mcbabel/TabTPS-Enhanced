@@ -43,6 +43,7 @@ public final class SpigotTickTimeService implements TickTimeService {
   private final @Nullable Field recentTps;
   private final @Nullable Method averageTickTimeNanos;
   private final @Nullable Field tickTimes;
+  private final ServerTickRate tickRate = new ServerTickRate();
 
   public SpigotTickTimeService() {
     Object server = null;
@@ -88,6 +89,11 @@ public final class SpigotTickTimeService implements TickTimeService {
       }
     }
     return null;
+  }
+
+  @Override
+  public double targetTps() {
+    return this.tickRate.targetTps();
   }
 
   @Override

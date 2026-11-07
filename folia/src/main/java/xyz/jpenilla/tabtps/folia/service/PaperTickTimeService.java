@@ -29,6 +29,13 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import xyz.jpenilla.tabtps.common.service.TickTimeService;
 
 public final class PaperTickTimeService implements TickTimeService {
+  private final ServerTickRate tickRate = new ServerTickRate();
+
+  @Override
+  public double targetTps() {
+    return this.tickRate.targetTps();
+  }
+
   @Override
   public double averageMspt() {
     return Bukkit.getAverageTickTime();

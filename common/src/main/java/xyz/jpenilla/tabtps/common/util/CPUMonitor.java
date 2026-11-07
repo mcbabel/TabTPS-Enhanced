@@ -43,7 +43,7 @@ public final class CPUMonitor {
   private final Future<?> monitorTask;
 
   public CPUMonitor() {
-    final ScheduledThreadPoolExecutor ex = new ScheduledThreadPoolExecutor(1);
+    final ScheduledThreadPoolExecutor ex = new ScheduledThreadPoolExecutor(1, new DaemonThreadFactory("TabTPS-CPU-Monitor"));
     ex.setRemoveOnCancelPolicy(true);
     this.executor = Executors.unconfigurableScheduledExecutorService(ex);
     this.monitorTask = this.executor.scheduleAtFixedRate(this::recordUsage, 0L, 500L, TimeUnit.MILLISECONDS);

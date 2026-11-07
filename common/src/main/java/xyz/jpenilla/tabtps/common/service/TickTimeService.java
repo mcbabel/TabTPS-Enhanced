@@ -28,7 +28,13 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import xyz.jpenilla.tabtps.common.User;
 
 public interface TickTimeService {
+  double DEFAULT_TARGET_TPS = 20.0D;
+
   double averageMspt();
+
+  default double targetTps() {
+    return DEFAULT_TARGET_TPS;
+  }
 
   double @NonNull [] recentTps();
 

@@ -106,7 +106,7 @@ public abstract class UserService<P, U extends User<P>> {
     final UUID uuid = this.uuid(newPlayer);
     final U oldUser = this.userMap.get(uuid);
     if (oldUser == null) {
-      throw new IllegalArgumentException("Cannot replace a player who is not logged in!");
+      return;
     }
     this.shutdownDisplays(oldUser);
     final U newUser = this.create(newPlayer);
@@ -156,7 +156,7 @@ public abstract class UserService<P, U extends User<P>> {
   public final void removeUser(final UUID uniqueId) {
     final U removed = this.userMap.remove(uniqueId);
     if (removed == null) {
-      throw new IllegalStateException("Cannot remove non-existing user " + uniqueId);
+      return;
     }
     this.shutdownDisplays(removed);
     if (removed.shouldSave()) {

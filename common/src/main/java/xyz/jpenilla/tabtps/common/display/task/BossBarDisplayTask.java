@@ -31,6 +31,7 @@ import xyz.jpenilla.tabtps.common.config.DisplayConfig;
 import xyz.jpenilla.tabtps.common.config.Theme;
 import xyz.jpenilla.tabtps.common.display.Display;
 import xyz.jpenilla.tabtps.common.module.ModuleRenderer;
+import xyz.jpenilla.tabtps.common.service.TickTimeService;
 
 public final class BossBarDisplayTask implements Display {
   private final TabTPS tabTPS;
@@ -77,12 +78,21 @@ public final class BossBarDisplayTask implements Display {
     }
   }
 
+  private double targetTps() {
+    final double target = this.tabTPS.platform().tickTimeService().targetTps();
+    return target > 0 ? target : TickTimeService.DEFAULT_TARGET_TPS;
+  }
+
+  private double msptBudget() {
+    return 1000.0D / this.targetTps();
+  }
+
   private float msptProgress() {
-    return ensureInRange(this.tabTPS.platform().tickTimeService().averageMspt(this.user) / 50.0f);
+    return ensureInRange(this.tabTPS.platform().tickTimeService().averageMspt(this.user) / this.msptBudget());
   }
 
   private float tpsProgress() {
-    return ensureInRange(this.tabTPS.platform().tickTimeService().displayTps(this.user) / 20.0f);
+    return ensureInRange(this.tabTPS.platform().tickTimeService().displayTps(this.user) / this.targetTps());
   }
 
   private static float ensureInRange(final double value) {
@@ -94,9 +104,9 @@ public final class BossBarDisplayTask implements Display {
       case MSPT:
       case REVERSE_MSPT:
         final double mspt = this.tabTPS.platform().tickTimeService().averageMspt(this.user);
-        if (mspt < 25) {
+        if (mspt < this.msptBudget() * 0.5D) {
           return this.settings.colors().goodPerformance();
-        } else if (mspt < 40) {
+        } else if (mspt < this.msptBudget() * 0.8D) {
           return this.settings.colors().mediumPerformance();
         } else {
           return this.settings.colors().lowPerformance();
@@ -104,9 +114,9 @@ public final class BossBarDisplayTask implements Display {
       case REVERSE_TPS:
       case TPS:
         final double tps = this.tabTPS.platform().tickTimeService().displayTps(this.user);
-        if (tps > 18.50D) {
+        if (tps > this.targetTps() * 0.925D) {
           return this.settings.colors().goodPerformance();
-        } else if (tps > 15.00D) {
+        } else if (tps > this.targetTps() * 0.75D) {
           return this.settings.colors().mediumPerformance();
         } else {
           return this.settings.colors().lowPerformance();

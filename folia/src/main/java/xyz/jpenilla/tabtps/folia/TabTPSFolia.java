@@ -82,6 +82,7 @@ public final class TabTPSFolia extends JavaPlugin implements TabTPSPlatform<Play
     this.registerCommands();
 
     this.getServer().getPluginManager().registerEvents(new FoliaJoinQuitListener(this), this);
+    this.getServer().getOnlinePlayers().forEach(this.userService::handleJoin);
 
     this.metrics = new Metrics(this, BSTATS_PLUGIN_ID);
 
