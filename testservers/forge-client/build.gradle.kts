@@ -14,7 +14,12 @@ minecraft {
   runs {
     register("client") {
       workingDir = runDir
-      args("--quickPlaySingleplayer", "tabtps-test")
+      val server = providers.gradleProperty("server").orNull
+      if (server != null) {
+        args("--quickPlayMultiplayer", server)
+      } else {
+        args("--quickPlaySingleplayer", "tabtps-test")
+      }
     }
   }
 }

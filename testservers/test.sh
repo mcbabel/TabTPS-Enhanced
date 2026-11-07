@@ -82,13 +82,21 @@ run() {
     return
   fi
   cp "$jar" "$folder/"
+  for url in ${EXTRA_PLUGINS:-}; do
+    curl -sSL -o "$folder/$(basename "$url")" "$url"
+  done
   echo eula=true > eula.txt
   printf 'online-mode=false\nserver-port=%s\nview-distance=4\nsimulation-distance=4\nlevel-type=minecraft\\:flat\n' "${PORT:-25599}" > server.properties
   : > cmd.txt
   (tail -n +1 -f "$dir/cmd.txt" | "$java" -Dtabtps.testserver="$dir" -Xms1G -Xmx2G $(cat launch.args) > console.log 2>&1) &
   local server=$!
   timeout 300 bash -c 'until grep -qE "Done \(|Failed to start|Encountered an unexpected exception|Crash report saved" console.log; do sleep 1; done'
-  for command in "tickinfo" "tabtps reload" "tickinfo" "memory" "tabtps about" "ping" "pingall"; do
+  local commands=("tickinfo" "tabtps reload" "tickinfo" "memory" "tabtps about" "ping" "pingall")
+  if [ -n "${EXTRA_COMMANDS:-}" ]; then
+    IFS=';' read -r -a extra <<< "$EXTRA_COMMANDS"
+    commands+=("${extra[@]}")
+  fi
+  for command in "${commands[@]}"; do
     echo "$command" >> cmd.txt
     sleep 2
   done
