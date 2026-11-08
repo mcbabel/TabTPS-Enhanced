@@ -57,6 +57,7 @@ import xyz.jpenilla.tabtps.common.service.UserService;
 import xyz.jpenilla.tabtps.folia.command.FoliaConsoleCommander;
 import xyz.jpenilla.tabtps.folia.command.FoliaPingCommand;
 import xyz.jpenilla.tabtps.folia.command.FoliaTickInfoCommandFormatter;
+import xyz.jpenilla.tabtps.folia.placeholder.MiniPlaceholdersHook;
 import xyz.jpenilla.tabtps.folia.placeholder.PlaceholderHook;
 import xyz.jpenilla.tabtps.folia.service.BukkitMobCapService;
 import xyz.jpenilla.tabtps.folia.service.FoliaRegionStatsService;
@@ -77,6 +78,7 @@ public final class TabTPSFolia extends JavaPlugin implements TabTPSPlatform<Play
   private @Nullable BukkitMobCapService mobCapService;
   private Logger logger;
   private BukkitAudiences audiences;
+  private @Nullable MiniPlaceholdersHook miniPlaceholders;
 
   @Override
   public void onEnable() {
@@ -95,9 +97,11 @@ public final class TabTPSFolia extends JavaPlugin implements TabTPSPlatform<Play
 
     this.metrics = new Metrics(this, BSTATS_PLUGIN_ID);
     PlaceholderHook.register(this);
+    this.miniPlaceholders = MiniPlaceholdersHook.register(this);
     if (this.mobCapService != null) {
       this.mobCapService.start(this);
     }
+    new ProxyStatsSender(this, regionizedServer(), this.getServer().getName() + " " + minecraftVersion()).start();
 
     if (this.tabTPS.configManager().pluginSettings().updateChecker()) {
       this.tabTPS.executor().execute(() ->
@@ -108,6 +112,10 @@ public final class TabTPSFolia extends JavaPlugin implements TabTPSPlatform<Play
 
   @Override
   public void onDisable() {
+    if (this.miniPlaceholders != null) {
+      this.miniPlaceholders.unregister();
+      this.miniPlaceholders = null;
+    }
     if (this.metrics != null) {
       this.metrics.shutdown();
       this.metrics = null;
@@ -180,7 +188,7 @@ public final class TabTPSFolia extends JavaPlugin implements TabTPSPlatform<Play
     final FoliaTickTimeService foliaTickTimeService = new FoliaTickTimeService();
     this.tickTimeService = foliaTickTimeService;
     if (foliaTickTimeService.regionDataAvailable()) {
-      this.regionStatsService = new FoliaRegionStatsService(foliaTickTimeService);
+      this.regionStatsService = new FoliaRegionStatsService(this, foliaTickTimeService);
     }
   }
 

@@ -50,6 +50,7 @@ rootProject.name = "TabTPS"
 listOf(
   "common",
   "folia",
+  "velocity",
 ).forEach { module ->
   include("tabtps-$module")
   project(":tabtps-$module").projectDir = file(module)

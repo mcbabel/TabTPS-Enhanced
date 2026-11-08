@@ -63,6 +63,9 @@ run() {
     local mc=${name#forge-}
     jar=$(newest_jar "../forge/$mc/build/libs/tabtps-forge-mc$mc-*.jar")
     folder=mods
+  elif [[ $name == velocity-* ]]; then
+    jar=$(newest_jar "../velocity/build/libs/tabtps-velocity-*.jar")
+    folder=plugins
   else
     jar=$(newest_jar "../folia/build/libs/tabtps-folia-*.jar")
     folder=plugins
@@ -82,9 +85,15 @@ run() {
     return
   fi
   cp "$jar" "$folder/"
+  if [[ $name == velocity-* ]]; then
+    echo "-jar server.jar" > launch.args
+  fi
   for url in ${EXTRA_PLUGINS:-}; do
     curl -sSL -o "$folder/$(basename "$url")" "$url"
   done
+  if [ -n "${PRESEED:-}" ]; then
+    cp -r "$PRESEED"/. "$dir/"
+  fi
   echo eula=true > eula.txt
   printf 'online-mode=false\nserver-port=%s\nview-distance=4\nsimulation-distance=4\nlevel-type=minecraft\\:flat\n' "${PORT:-25599}" > server.properties
   : > cmd.txt
@@ -107,7 +116,9 @@ run() {
   wait "$server" 2>/dev/null
   cp console.log "$root/logs/$name.log"
   local mode tps exceptions
-  if grep -q "Successfully initialized Folia region tick data accessor" console.log; then
+  if [[ $name == velocity-* ]]; then
+    grep -q "Loaded plugin tabtps" console.log && mode="proxy" || mode="NOT ENABLED"
+  elif grep -q "Successfully initialized Folia region tick data accessor" console.log; then
     mode="per region"
   elif grep -q "is not a regionized server" console.log; then
     mode="global"

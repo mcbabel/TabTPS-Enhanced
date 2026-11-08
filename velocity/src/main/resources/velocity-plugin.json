@@ -1,0 +1,10 @@
+{
+  "id": "tabtps",
+  "name": "TabTPS",
+  "version": "${version}",
+  "description": "Shows the TPS and MSPT of all backend servers that run TabTPS",
+  "url": "${github}",
+  "authors": ["MCbabel"],
+  "dependencies": [],
+  "main": "xyz.jpenilla.tabtps.velocity.TabTPSVelocity"
+}

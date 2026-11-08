@@ -44,6 +44,9 @@ public final class Constants {
   public static final String PERMISSION_COMMAND_MOBCAPS = PERMISSION_ROOT + DOT + "mobcaps";
   public static final String PERMISSION_COMMAND_TOGGLE_OTHERS = PERMISSION_ROOT + DOT + "toggle" + DOT + "others";
   public static final String PERMISSION_UPDATE_NOTIFY = PERMISSION_ROOT + DOT + "updatenotify";
+  public static final String PERMISSION_COMMAND_REGIONS = PERMISSION_ROOT + DOT + "regions";
+  public static final String PERMISSION_COMMAND_REGIONS_TELEPORT = PERMISSION_ROOT + DOT + "regions" + DOT + "teleport";
+  public static final String PERMISSION_LAG_ALERT = PERMISSION_ROOT + DOT + "lagalert";
 
   public static final String PERMISSION_COMMAND_ERROR_HOVER_STACKTRACE = PERMISSION_ROOT + DOT + "command" + DOT + "hover_stacktrace";
 }

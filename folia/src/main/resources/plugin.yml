@@ -10,3 +10,4 @@ authors:
   - jmp
 softdepend:
   - PlaceholderAPI
+  - MiniPlaceholders

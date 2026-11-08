@@ -40,15 +40,18 @@ import xyz.jpenilla.tabtps.common.command.commands.HelpCommand;
 import xyz.jpenilla.tabtps.common.command.commands.MemoryCommand;
 import xyz.jpenilla.tabtps.common.command.commands.MobCapsCommand;
 import xyz.jpenilla.tabtps.common.command.commands.PingCommand;
+import xyz.jpenilla.tabtps.common.command.commands.RegionsCommand;
 import xyz.jpenilla.tabtps.common.command.commands.ReloadCommand;
 import xyz.jpenilla.tabtps.common.command.commands.ToggleDisplayCommands;
 import xyz.jpenilla.tabtps.common.config.ConfigManager;
 import xyz.jpenilla.tabtps.common.config.DisplayConfig;
 import xyz.jpenilla.tabtps.common.config.PluginSettings;
+import xyz.jpenilla.tabtps.common.service.RegionStatsService;
 import xyz.jpenilla.tabtps.common.util.CPUMonitor;
 import xyz.jpenilla.tabtps.common.util.Components;
 import xyz.jpenilla.tabtps.common.util.Constants;
 import xyz.jpenilla.tabtps.common.util.DaemonThreadFactory;
+import xyz.jpenilla.tabtps.common.util.LagAlerts;
 import xyz.jpenilla.tabtps.common.util.UpdateChecker;
 
 import static net.kyori.adventure.text.Component.space;
@@ -80,6 +83,7 @@ public final class TabTPS {
       this.commands = new Commands(this, platform.commandManager());
       this.registerCommands();
       this.cpuMonitor = new CPUMonitor();
+      new LagAlerts(this).start();
     } catch (final IOException e) {
       this.platform.shutdown();
       this.shutdown();
@@ -117,6 +121,10 @@ public final class TabTPS {
       new MemoryCommand(this, this.commands),
       new MobCapsCommand(this, this.commands)
     ).forEach(TabTPSCommand::register);
+    final RegionStatsService regionStats = this.platform.regionStatsService();
+    if (regionStats != null) {
+      new RegionsCommand(this, this.commands, regionStats).register();
+    }
   }
 
   public @NonNull TabTPSPlatform<?, ?> platform() {

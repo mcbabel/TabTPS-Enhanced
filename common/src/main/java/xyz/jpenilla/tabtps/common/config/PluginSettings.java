@@ -75,6 +75,22 @@ public final class PluginSettings {
     return this.consoleColors;
   }
 
+  @Comment("Warns players with the tabtps.lagalert permission (operators by default) and the console when the server lags for a while\n"
+    + "On Folia and Canvas the slowest region counts")
+  private LagAlerts lagAlerts = new LagAlerts();
+
+  public @NonNull LagAlerts lagAlerts() {
+    return this.lagAlerts;
+  }
+
+  @Comment("Send TPS, MSPT and player counts to the TabTPS Velocity plugin every few seconds, so /networktps on the proxy can show them\n"
+    + "Plugin only, not on Forge. Needs at least one player on this server, because the data travels through a player connection")
+  private boolean sendStatsToProxy = false;
+
+  public boolean sendStatsToProxy() {
+    return this.sendStatsToProxy;
+  }
+
   public @NonNull HelpColors helpColors() {
     return this.helpColors;
   }
@@ -111,6 +127,58 @@ public final class PluginSettings {
 
     public int bossBar() {
       return this.bossBar;
+    }
+  }
+
+  @ConfigSerializable
+  public static final class LagAlerts {
+    @Comment("Set to true to turn lag alerts on")
+    private boolean enabled = false;
+
+    @Comment("Alert when the TPS stay below this value, 0 turns the TPS check off")
+    private double tpsBelow = 15.0;
+
+    @Comment("Alert when the MSPT stay above this value, 0 turns the MSPT check off")
+    private double msptAbove = 0;
+
+    @Comment("How many seconds the server has to lag before an alert is sent")
+    private int seconds = 30;
+
+    @Comment("Minimum number of seconds between two alerts")
+    private int cooldownSeconds = 300;
+
+    @Comment("Send a short message when the lag is over")
+    private boolean notifyRecovery = true;
+
+    @Comment("Discord webhook URL to also send alerts to Discord, leave empty to only alert in game and in the console")
+    private String discordWebhook = "";
+
+    public boolean enabled() {
+      return this.enabled;
+    }
+
+    public double tpsBelow() {
+      return this.tpsBelow;
+    }
+
+    public double msptAbove() {
+      return this.msptAbove;
+    }
+
+    public int seconds() {
+      return Math.max(1, this.seconds);
+    }
+
+    public int cooldownSeconds() {
+      return Math.max(0, this.cooldownSeconds);
+    }
+
+    public boolean notifyRecovery() {
+      return this.notifyRecovery;
+    }
+
+    public @NonNull String discordWebhook() {
+      return this.discordWebhook == null ? "" : this.discordWebhook.trim();
     }
   }
 

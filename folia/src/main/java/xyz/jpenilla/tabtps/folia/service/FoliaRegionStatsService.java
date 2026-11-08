@@ -2,7 +2,6 @@
  * This file is part of TabTPS, licensed under the MIT License.
  *
  * Copyright (c) 2020-2024 Jason Penilla
- * Copyright (c) 2026 MCbabel (Folia support)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,12 +24,24 @@
 package xyz.jpenilla.tabtps.folia.service;
 
 import java.util.List;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
+import xyz.jpenilla.tabtps.common.User;
 import xyz.jpenilla.tabtps.common.service.RegionStatsService;
+import xyz.jpenilla.tabtps.folia.TabTPSFolia;
 
 public final class FoliaRegionStatsService implements RegionStatsService {
+  private final TabTPSFolia plugin;
   private final FoliaTickTimeService tickTimeService;
 
-  public FoliaRegionStatsService(final FoliaTickTimeService tickTimeService) {
+  public FoliaRegionStatsService(final @NonNull TabTPSFolia plugin, final @NonNull FoliaTickTimeService tickTimeService) {
+    this.plugin = plugin;
     this.tickTimeService = tickTimeService;
   }
 
@@ -61,5 +72,42 @@ public final class FoliaRegionStatsService implements RegionStatsService {
     final List<Double> tps = this.collectRegionTps();
     if (tps.isEmpty()) return 20.0;
     return tps.get(tps.size() - 1);
+  }
+
+  @Override
+  public @NonNull List<Region> regions() {
+    return this.tickTimeService.regions();
+  }
+
+  @Override
+  public boolean teleport(final @NonNull User<?> user, final @NonNull String worldName, final int blockX, final int blockZ) {
+    final Object base = user.base();
+    final World world = Bukkit.getWorld(worldName);
+    if (!(base instanceof Player) || world == null) {
+      return false;
+    }
+    final Player player = (Player) base;
+    final Location target = new Location(world, blockX + 0.5, world.getMinHeight(), blockZ + 0.5);
+    Bukkit.getRegionScheduler().execute(this.plugin, target, () -> {
+      final Location safe = safeLocation(world, blockX, blockZ);
+      if (safe != null) {
+        player.teleportAsync(safe);
+      }
+    });
+    return true;
+  }
+
+  private static @Nullable Location safeLocation(final World world, final int x, final int z) {
+    final int top = world.getEnvironment() == World.Environment.NETHER
+      ? Math.min(world.getMaxHeight(), 125)
+      : world.getHighestBlockYAt(x, z) + 1;
+    for (int y = top; y > world.getMinHeight(); y--) {
+      final Block feet = world.getBlockAt(x, y, z);
+      if (feet.isPassable() && !feet.isLiquid() && feet.getRelative(0, 1, 0).isPassable() && feet.getRelative(0, -1, 0).getType().isSolid()) {
+        return new Location(world, x + 0.5, y, z + 0.5);
+      }
+    }
+    final Block highest = world.getHighestBlockAt(x, z);
+    return highest.getType() == Material.AIR ? null : highest.getLocation().add(0.5, 1, 0.5);
   }
 }

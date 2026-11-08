@@ -23,10 +23,100 @@
  */
 package xyz.jpenilla.tabtps.common.service;
 
+import java.util.Collections;
+import java.util.List;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import xyz.jpenilla.tabtps.common.User;
+
 public interface RegionStatsService {
   double lowestRegionTps();
 
   double medianRegionTps();
 
   double highestRegionTps();
+
+  default @NonNull List<Region> regions() {
+    return Collections.emptyList();
+  }
+
+  default boolean teleport(final @NonNull User<?> user, final @NonNull String world, final int blockX, final int blockZ) {
+    return false;
+  }
+
+  final class Region {
+    private final String world;
+    private final boolean located;
+    private final int blockX;
+    private final int blockZ;
+    private final double tps;
+    private final double mspt;
+    private final double utilisation;
+    private final int chunks;
+    private final int players;
+    private final int entities;
+
+    public Region(
+      final @NonNull String world,
+      final boolean located,
+      final int blockX,
+      final int blockZ,
+      final double tps,
+      final double mspt,
+      final double utilisation,
+      final int chunks,
+      final int players,
+      final int entities
+    ) {
+      this.world = world;
+      this.located = located;
+      this.blockX = blockX;
+      this.blockZ = blockZ;
+      this.tps = tps;
+      this.mspt = mspt;
+      this.utilisation = utilisation;
+      this.chunks = chunks;
+      this.players = players;
+      this.entities = entities;
+    }
+
+    public @NonNull String world() {
+      return this.world;
+    }
+
+    public boolean located() {
+      return this.located;
+    }
+
+    public int blockX() {
+      return this.blockX;
+    }
+
+    public int blockZ() {
+      return this.blockZ;
+    }
+
+    public double tps() {
+      return this.tps;
+    }
+
+    public double mspt() {
+      return this.mspt;
+    }
+
+    public double utilisation() {
+      return this.utilisation;
+    }
+
+    public int chunks() {
+      return this.chunks;
+    }
+
+    public int players() {
+      return this.players;
+    }
+
+    public int entities() {
+      return this.entities;
+    }
+  }
 }

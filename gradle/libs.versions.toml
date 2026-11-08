@@ -24,6 +24,7 @@ paperLib = "1.0.8"
 foliaApi = "1.20.1-R0.1-SNAPSHOT"
 brigadier = "1.0.18"
 placeholderApi = "2.12.3"
+velocityApi = "3.4.0"
 fabricApi = "0.139.5+1.21.11"
 fabricLoader = "0.18.2"
 minecraft = "26.3"
@@ -82,6 +83,7 @@ paperLib = { group = "io.papermc", name = "paperlib", version.ref = "paperLib" }
 foliaApi = { group = "dev.folia", name = "folia-api", version.ref = "foliaApi" }
 brigadier = { group = "com.mojang", name = "brigadier", version.ref = "brigadier" }
 placeholderApi = { group = "me.clip", name = "placeholderapi", version.ref = "placeholderApi" }
+velocityApi = { group = "com.velocitypowered", name = "velocity-api", version.ref = "velocityApi" }
 
 fabricApi = { group = "net.fabricmc.fabric-api", name = "fabric-api", version.ref = "fabricApi" }
 fabricLoader = { group = "net.fabricmc", name = "fabric-loader", version.ref = "fabricLoader" }

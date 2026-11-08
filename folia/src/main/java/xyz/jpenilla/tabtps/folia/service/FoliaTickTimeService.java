@@ -32,6 +32,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -41,6 +43,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xyz.jpenilla.tabtps.common.User;
+import xyz.jpenilla.tabtps.common.service.RegionStatsService;
 import xyz.jpenilla.tabtps.common.service.TickTimeService;
 
 public final class FoliaTickTimeService implements TickTimeService {
@@ -120,6 +123,11 @@ public final class FoliaTickTimeService implements TickTimeService {
       return null;
     }
     return accessor.regionTickData(player, WINDOW_5S);
+  }
+
+  List<RegionStatsService.Region> regions() {
+    final RegionTickDataAccessor accessor = this.accessor;
+    return accessor == null ? Collections.emptyList() : accessor.regions(WINDOW_15S);
   }
 
   List<Double> sortedRegionTps() {
@@ -208,6 +216,7 @@ public final class FoliaTickTimeService implements TickTimeService {
   }
 
   static final class RegionTickDataAccessor {
+    private static final Pattern CHUNK_POS = Pattern.compile("\\[(-?\\d+), ?(-?\\d+)]");
     private static final String[] TICK_REPORT_METHODS = {
       "getTickReport5s", "getTickReport15s", "getTickReport1m", "getTickReport5m", "getTickReport15m"
     };
@@ -223,6 +232,12 @@ public final class FoliaTickTimeService implements TickTimeService {
     private final Method segmentAll;
     private final Method segmentAverage;
     private final Method getCraftWorldHandle;
+    private final @Nullable Method getCenterChunk;
+    private final @Nullable Method getRegionStats;
+    private final @Nullable Method statsChunks;
+    private final @Nullable Method statsPlayers;
+    private final @Nullable Method statsEntities;
+    private final @Nullable Method utilisation;
 
     RegionTickDataAccessor() throws ReflectiveOperationException {
       final Class<?> craftWorldClass = Class.forName(Bukkit.getServer().getClass().getPackage().getName() + ".CraftWorld");
@@ -298,6 +313,14 @@ public final class FoliaTickTimeService implements TickTimeService {
       final Class<?> segmentDataClass = this.segmentAll.getReturnType();
       this.segmentAverage = segmentDataClass.getMethod("average");
       this.segmentAverage.setAccessible(true);
+
+      this.getCenterChunk = firstMethod(threadedRegionClass, 0, "getCenterChunk");
+      this.getRegionStats = firstMethod(regionDataClass, 0, "getRegionStats");
+      final Class<?> statsClass = this.getRegionStats == null ? null : this.getRegionStats.getReturnType();
+      this.statsChunks = statsClass == null ? null : firstMethod(statsClass, 0, "getChunkCount");
+      this.statsPlayers = statsClass == null ? null : firstMethod(statsClass, 0, "getPlayerCount");
+      this.statsEntities = statsClass == null ? null : firstMethod(statsClass, 0, "getEntityCount");
+      this.utilisation = firstMethod(reportClass, 0, "utilisation");
 
       LOGGER.info(
         "Folia path: CraftWorld.getHandle() -> {}.{} -> {} -> getData() -> {}.{} -> {}.{} -> {}().segmentAll().average()",
@@ -405,6 +428,108 @@ public final class FoliaTickTimeService implements TickTimeService {
         }
       }
       return new Snapshot(now, regionTps, regionMspt);
+    }
+
+    List<RegionStatsService.Region> regions(final int window) {
+      final List<RegionStatsService.Region> result = new ArrayList<>();
+      final long now = System.nanoTime();
+      for (final World world : Bukkit.getWorlds()) {
+        final List<Object> regions = new ArrayList<>();
+        try {
+          final Object regionizer = this.regioniserField.get(this.getCraftWorldHandle.invoke(world));
+          if (regionizer == null) {
+            continue;
+          }
+          final Consumer<Object> collector = regions::add;
+          this.computeForAllRegions.invoke(regionizer, collector);
+        } catch (final Throwable t) {
+          LOGGER.debug("Failed to enumerate Folia regions of {}", world.getName(), t);
+          continue;
+        }
+        for (final Object region : regions) {
+          final RegionStatsService.Region info = this.region(world, region, window, now);
+          if (info != null) {
+            result.add(info);
+          }
+        }
+      }
+      return result;
+    }
+
+    private RegionStatsService.@Nullable Region region(final World world, final Object region, final int window, final long now) {
+      try {
+        final Object data = this.getData.invoke(region);
+        if (data == null) {
+          return null;
+        }
+        final Object handle = this.getSchedulingHandle.invoke(data);
+        final Object report = handle == null ? null : this.tickReports[window].invoke(handle, now);
+        if (report == null) {
+          return null;
+        }
+        final double tps = this.average(this.tpsData, report);
+        final double mspt = this.average(this.timePerTickData, report) / 1.0E6D;
+        final double util = this.utilisation == null ? -1 : ((Number) this.utilisation.invoke(report)).doubleValue();
+
+        final int[] center = this.getCenterChunk == null ? null : chunkCoordinates(this.getCenterChunk.invoke(region));
+        final Object stats = this.getRegionStats == null ? null : this.getRegionStats.invoke(data);
+        return new RegionStatsService.Region(
+          world.getName(),
+          center != null,
+          center == null ? 0 : (center[0] << 4) | 7,
+          center == null ? 0 : (center[1] << 4) | 7,
+          tps,
+          mspt,
+          util,
+          count(this.statsChunks, stats),
+          count(this.statsPlayers, stats),
+          count(this.statsEntities, stats)
+        );
+      } catch (final Throwable t) {
+        LOGGER.debug("Failed to read Folia region", t);
+        return null;
+      }
+    }
+
+    private static int count(final @Nullable Method method, final @Nullable Object stats) throws ReflectiveOperationException {
+      if (method == null || stats == null) {
+        return -1;
+      }
+      return ((Number) method.invoke(stats)).intValue();
+    }
+
+    private static int @Nullable [] chunkCoordinates(final @Nullable Object chunkPos) {
+      if (chunkPos == null) {
+        return null;
+      }
+      final Integer x = coordinate(chunkPos, "x");
+      final Integer z = coordinate(chunkPos, "z");
+      if (x != null && z != null) {
+        return new int[]{x, z};
+      }
+      final Matcher matcher = CHUNK_POS.matcher(chunkPos.toString());
+      if (matcher.find()) {
+        return new int[]{Integer.parseInt(matcher.group(1)), Integer.parseInt(matcher.group(2))};
+      }
+      return null;
+    }
+
+    private static @Nullable Integer coordinate(final Object chunkPos, final String name) {
+      try {
+        final Method method = chunkPos.getClass().getMethod(name);
+        if (method.getReturnType() == int.class) {
+          return (Integer) method.invoke(chunkPos);
+        }
+      } catch (final ReflectiveOperationException | RuntimeException ignored) {
+      }
+      try {
+        final Field field = chunkPos.getClass().getField(name);
+        if (field.getType() == int.class) {
+          return field.getInt(chunkPos);
+        }
+      } catch (final ReflectiveOperationException | RuntimeException ignored) {
+      }
+      return null;
     }
 
     private @Nullable Object handle(final Object region) throws ReflectiveOperationException {

@@ -34,6 +34,15 @@ A Forge mod needs one jar per Minecraft version:
 
 Put the jar into the `mods/` folder. It only runs on the server side: players do not need it to join a server, and in singleplayer it runs on the built-in server. The config lives in `config/tabtps/`. Permissions go through Forge's permission API, so permission mods that hook into it (for example LuckPerms) can grant them; without one, the display and command permissions default to operators. In singleplayer the world owner always has every permission, so the displays work without cheats.
 
+### Velocity
+
+An optional Velocity plugin shows the TPS, MSPT and player counts of all backend servers on the proxy with `/networktps` (alias `/ntps`, permission `tabtps.network`). It runs on Velocity 3.4 and newer.
+
+1. Put `tabtps-velocity-*.jar` into the proxy's `plugins/` folder.
+2. On every backend server that runs the TabTPS plugin, set `send-stats-to-proxy=true` in `main.conf` and run `/tabtps reload`.
+
+The backends send their values every 5 seconds through a player connection, so a server without players shows its last known values with their age, or `no data`. Forge servers do not send data yet. Messages on that channel that come from a client instead of a backend server are dropped.
+
 ## Features
 
 ### Regional TPS/MSPT
@@ -104,6 +113,21 @@ The boss bar also follows `/tick rate` on servers that support it, so a full bar
 #### Plain console output
 `console-colors=false` in `main.conf` turns off colors and gradients for command output in the server console. In the console `/memory` also prints the used, allocated and maximum memory behind each bar.
 
+#### Lag alerts
+Set `enabled=true` in the `lag-alerts` section of `main.conf` to get a warning when the server lags for a while. Players with `tabtps.lagalert` (operators by default) get a chat message, the console gets a log line, and a Discord webhook can get a message too:
+```hocon
+lag-alerts {
+    enabled=true
+    tps-below=15.0
+    mspt-above=0
+    seconds=30
+    cooldown-seconds=300
+    notify-recovery=true
+    discord-webhook=""
+}
+```
+`tps-below` and `mspt-above` set the limits, 0 turns that check off. The server has to stay past a limit for `seconds` before an alert goes out, and after an alert the next one waits at least `cooldown-seconds`. On Folia and Canvas the slowest region counts, and the alert names its location.
+
 ### PlaceholderAPI
 
 If [PlaceholderAPI](https://modrinth.com/plugin/placeholderapi) is installed, TabTPS registers these placeholders by itself (plugin only, not Forge):
@@ -120,6 +144,10 @@ If [PlaceholderAPI](https://modrinth.com/plugin/placeholderapi) is installed, Ta
 | `%tabtps_memory_used%`, `%tabtps_memory_allocated%`, `%tabtps_memory_max%` | Memory in MB |
 
 Add `_colored` to `tps`, `mspt`, `ping` and the region placeholders to get TabTPS' colors, e.g. `%tabtps_tps_colored%`.
+
+### MiniPlaceholders
+
+If [MiniPlaceholders](https://modrinth.com/plugin/miniplaceholders) 2.x or 3.x is installed, the same values are available as MiniMessage tags (plugin only): `<tabtps_tps>`, `<tabtps_mspt>`, `<tabtps_ping>`, `<tabtps_uptime>` and so on, with the same names as the PlaceholderAPI list above. `_colored` works here too, e.g. `<tabtps_tps_colored>`.
 
 ### Commands
 
@@ -150,6 +178,12 @@ Add `_colored` to `tps`, `mspt`, `ping` and the region placeholders to get TabTP
 * Lists the mob caps of every world and category
 * Permission required: ``tabtps.mobcaps``
 
+#### Regions command
+* Command: ``/tabtps regions [count]``, only on Folia and Canvas
+* Lists the regions with the highest load (10 by default), with world, center, TPS, MSPT, utilisation and their chunk, player and entity counts
+* Click a line to teleport to the center of that region, which needs ``tabtps.regions.teleport``
+* Permission required: ``tabtps.regions``
+
 #### Reload command
 * Command: ``/tabtps reload``
 * Permission required: ``tabtps.reload``
@@ -171,6 +205,10 @@ On startup TabTPS asks Modrinth once whether a newer version exists for your pla
 The built JAR will be at `folia/build/libs/tabtps-folia-*.jar`.
 
 The Forge mods build with `./gradlew :tabtps-forge-26-3:build` and `./gradlew :tabtps-forge-1-20-1:build` and end up in `forge/<version>/build/libs/tabtps-forge-mc<version>-*.jar`. For 1.20.1 that jar is renamed to Forge's runtime (SRG) names; the `-mojmap` jar next to it is only for Forge's development client.
+
+The Velocity plugin builds with `./gradlew :tabtps-velocity:build` into `velocity/build/libs/tabtps-velocity-*.jar`. It does not depend on the other modules; the backend plugin and the proxy only share the `tabtps:stats` plugin message format: a protocol byte (1), TPS and MSPT as doubles, online and maximum players as ints, the number of regions as int and the lowest region TPS as double (both -1 without regions), the uptime in seconds as long and the server software as a UTF string.
+
+MiniPlaceholders works with the server's own Adventure classes, while the plugin ships a relocated copy of Adventure. The hook therefore goes through reflection and a proxy for MiniPlaceholders' resolver interface, and hands the values over as MiniMessage text.
 
 ### Notes on the build
 
