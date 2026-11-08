@@ -249,6 +249,11 @@ public final class TabTPSForge implements TabTPSPlatform<ServerPlayer, ForgeUser
   }
 
   @Override
+  public void playMenuSound(final @NonNull User<?> user, final @NonNull String sound) {
+    this.gui.playSound(user, sound);
+  }
+
+  @Override
   public void promptChat(final @NonNull User<?> user, final @NonNull Consumer<String> input) {
     this.gui.prompt(user, input);
   }

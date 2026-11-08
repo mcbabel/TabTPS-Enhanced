@@ -47,6 +47,7 @@ import xyz.jpenilla.tabtps.common.command.commands.ToggleDisplayCommands;
 import xyz.jpenilla.tabtps.common.config.ConfigManager;
 import xyz.jpenilla.tabtps.common.config.DisplayConfig;
 import xyz.jpenilla.tabtps.common.config.PluginSettings;
+import xyz.jpenilla.tabtps.common.gui.GuiService;
 import xyz.jpenilla.tabtps.common.service.RegionStatsService;
 import xyz.jpenilla.tabtps.common.util.CPUMonitor;
 import xyz.jpenilla.tabtps.common.util.Components;
@@ -69,6 +70,7 @@ public final class TabTPS {
   private final ConfigManager configManager;
   private final ScheduledExecutorService executor;
   private final Commands commands;
+  private final GuiService gui;
   private volatile long startedAt = System.currentTimeMillis();
   private volatile UpdateChecker.@Nullable Update availableUpdate;
 
@@ -81,6 +83,7 @@ public final class TabTPS {
       final ScheduledThreadPoolExecutor ex = new ScheduledThreadPoolExecutor(4, new DaemonThreadFactory("TabTPS-Worker"));
       ex.setRemoveOnCancelPolicy(true);
       this.executor = Executors.unconfigurableScheduledExecutorService(ex);
+      this.gui = new GuiService(this);
       this.commands = new Commands(this, platform.commandManager());
       this.registerCommands();
       this.cpuMonitor = new CPUMonitor();
@@ -131,6 +134,10 @@ public final class TabTPS {
 
   public @NonNull TabTPSPlatform<?, ?> platform() {
     return this.platform;
+  }
+
+  public @NonNull GuiService gui() {
+    return this.gui;
   }
 
   public @NonNull ConfigManager configManager() {

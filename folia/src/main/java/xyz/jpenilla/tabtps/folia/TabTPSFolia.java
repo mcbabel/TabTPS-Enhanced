@@ -101,6 +101,7 @@ public final class TabTPSFolia extends JavaPlugin implements TabTPSPlatform<Play
 
     this.getServer().getPluginManager().registerEvents(new FoliaJoinQuitListener(this), this);
     this.getServer().getPluginManager().registerEvents(this.gui, this);
+    this.gui.registerCustomClicks();
     this.getServer().getOnlinePlayers().forEach(this.userService::handleJoin);
 
     this.metrics = new Metrics(this, BSTATS_PLUGIN_ID);
@@ -290,6 +291,16 @@ public final class TabTPSFolia extends JavaPlugin implements TabTPSPlatform<Play
   }
 
   @Override
+  public boolean customClicksSupported() {
+    return this.gui.customClicksSupported();
+  }
+
+  @Override
+  public void closeDialog(final @NonNull User<?> user) {
+    this.gui.closeDialog(user);
+  }
+
+  @Override
   public boolean menusSupported() {
     return true;
   }
@@ -302,6 +313,11 @@ public final class TabTPSFolia extends JavaPlugin implements TabTPSPlatform<Play
   @Override
   public void closeMenu(final @NonNull User<?> user) {
     this.gui.close(user);
+  }
+
+  @Override
+  public void playMenuSound(final @NonNull User<?> user, final @NonNull String sound) {
+    this.gui.playSound(user, sound);
   }
 
   @Override

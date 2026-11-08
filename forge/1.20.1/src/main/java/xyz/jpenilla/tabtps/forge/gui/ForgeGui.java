@@ -28,15 +28,20 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.translation.Translator;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
+import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Inventory;
@@ -76,6 +81,17 @@ public final class ForgeGui {
     this.platform.server().execute(() -> input.accept(text));
   }
 
+  public void playSound(final @NonNull User<?> user, final @NonNull String sound) {
+    final ServerPlayer player = player(user);
+    final ResourceLocation id = ResourceLocation.tryParse(sound);
+    if (player == null || id == null) {
+      return;
+    }
+    this.platform.server().execute(() -> player.connection.send(new ClientboundSoundPacket(
+      Holder.direct(SoundEvent.createVariableRangeEvent(id)), SoundSource.MASTER, player.getX(), player.getY(), player.getZ(), 0.5F, 1.0F, player.getRandom().nextLong()
+    )));
+  }
+
   public void open(final @NonNull User<?> user, final @NonNull Menu menu) {
     final ServerPlayer player = player(user);
     if (player == null) {
@@ -83,15 +99,22 @@ public final class ForgeGui {
     }
     this.platform.server().execute(() -> {
       final Locale locale = locale(player);
+      if (player.containerMenu instanceof GuiMenu current && current.show(menu)) {
+        return;
+      }
       final int rows = Math.max(1, Math.min(6, menu.rows()));
       final SimpleContainer container = new SimpleContainer(rows * 9);
+      final Function<MenuItem, ItemStack> stacks = item -> this.stack(item, locale);
       for (final Map.Entry<Integer, MenuItem> entry : menu.items().entrySet()) {
         if (entry.getKey() < container.getContainerSize()) {
-          container.setItem(entry.getKey(), this.stack(entry.getValue(), locale));
+          container.setItem(entry.getKey(), stacks.apply(entry.getValue()));
         }
       }
+      if (player.containerMenu instanceof GuiMenu) {
+        player.doCloseContainer();
+      }
       player.openMenu(new SimpleMenuProvider(
-        (id, inventory, opener) -> new GuiMenu(type(rows), id, inventory, container, rows, menu, user),
+        (id, inventory, opener) -> new GuiMenu(type(rows), id, inventory, container, rows, menu, user, stacks),
         this.platform.audiences().toNative(menu.title(), locale)
       ));
     });
@@ -172,14 +195,44 @@ public final class ForgeGui {
 
   private static final class GuiMenu extends ChestMenu {
     private final int size;
-    private final Menu menu;
+    private final SimpleContainer container;
     private final User<?> user;
+    private final Function<MenuItem, ItemStack> stacks;
+    private Menu menu;
+    private int ticks;
 
-    GuiMenu(final MenuType<?> type, final int id, final Inventory inventory, final SimpleContainer container, final int rows, final Menu menu, final User<?> user) {
+    GuiMenu(final MenuType<?> type, final int id, final Inventory inventory, final SimpleContainer container, final int rows, final Menu menu, final User<?> user, final Function<MenuItem, ItemStack> stacks) {
       super(type, id, inventory, container, rows);
       this.size = rows * 9;
+      this.container = container;
       this.menu = menu;
       this.user = user;
+      this.stacks = stacks;
+    }
+
+    boolean show(final Menu next) {
+      if (Math.max(1, Math.min(6, next.rows())) * 9 != this.size || !next.title().equals(this.menu.title())) {
+        return false;
+      }
+      this.menu = next;
+      for (int slot = 0; slot < this.size; slot++) {
+        final MenuItem item = next.item(slot);
+        this.container.setItem(slot, item == null ? ItemStack.EMPTY : this.stacks.apply(item));
+      }
+      this.broadcastChanges();
+      return true;
+    }
+
+    @Override
+    public void broadcastChanges() {
+      if (this.menu.live() && ++this.ticks % 20 == 0) {
+        for (final Map.Entry<Integer, MenuItem> entry : this.menu.refresh().entrySet()) {
+          if (entry.getKey() < this.size) {
+            this.container.setItem(entry.getKey(), this.stacks.apply(entry.getValue()));
+          }
+        }
+      }
+      super.broadcastChanges();
     }
 
     @Override

@@ -150,6 +150,7 @@
           <tr><td><code>console-colors</code></td><td><code>true</code></td><td>Set to <code>false</code> for consoles that cannot show colors.</td></tr>
           <tr><td><code>lag-alerts</code></td><td>off</td><td>Warnings when the server lags, see <a href="#lag-alerts">Lag alerts</a>.</td></tr>
           <tr><td><code>send-stats-to-proxy</code></td><td><code>false</code></td><td>Sends this server's values to the Velocity plugin, see <a href="#velocity">Velocity network</a>.</td></tr>
+          <tr><td><code>menu-sounds</code></td><td><code>false</code></td><td>Plays a sound when switching pages or saving in the chest menu.</td></tr>
           <tr><td><code>gui-style</code></td><td><code>auto</code></td><td>Which settings menu opens: <code>auto</code>, <code>dialog</code> or <code>chest</code>.</td></tr>
           <tr><td><code>permission-priorities</code></td><td></td><td>Order in which display config permissions are checked when a player has more than one.</td></tr>
           <tr><td><code>ignored-memory-pools</code></td><td></td><td>Memory pools that <code>/memory</code> leaves out.</td></tr>
@@ -249,8 +250,8 @@ levels=[
 
     <section id="settings-menu">
       <h2>Settings menu</h2>
-      <p><code>/tabtps gui</code> opens a menu for the displays, modules, themes, custom text, lag alerts and general options, plus a page where each player turns their own displays on or off. Changes are written to the config files and take effect right away.</p>
-      <p>On Minecraft 1.21.6 and newer the menu uses Minecraft's dialog screens, on older versions a chest menu. <code>gui-style</code> in <code>main.conf</code> forces one of them. In the chest menu, text values are typed in chat. A Discord webhook that is already set shows as <code>(hidden)</code>, so its token never appears in the game.</p>
+      <p><code>/tabtps gui</code>, or just <code>/tabtps</code>, opens a menu for the displays, modules, themes, custom text, lag alerts and general options, plus a page where each player turns their own displays on or off. Changes are written to the config files and take effect right away.</p>
+      <p>On Minecraft 1.21.6 and newer the menu uses Minecraft's dialog screens, on older versions a chest menu. <code>gui-style</code> in <code>main.conf</code> forces one of them. Where dialogs work, you can also switch it under General → Menu style, for example to keep the chest menu on new versions. The chest menu shows your current TPS and MSPT live on its main page, and <code>menu-sounds</code> plays a sound when you switch pages or save. In the chest menu, text values are typed in chat. A Discord webhook that is already set shows as <code>(hidden)</code>, so its token never appears in the game.</p>
       <img class="doc-shot" src="media/gui-dialog.png" width="1440" height="810" alt="The settings dialog with buttons for displays, lag alerts, general and your displays" loading="lazy">
     </section>
 
@@ -260,7 +261,7 @@ levels=[
         <thead><tr><th>Command</th><th>What it does</th><th>Permission</th></tr></thead>
         <tbody>
           <tr><td><code>/tabtps toggle &lt;tab|actionbar|bossbar&gt; [player]</code></td><td>Turns a display on or off, for yourself or another player.</td><td>display config, <code>tabtps.toggle.others</code></td></tr>
-          <tr><td><code>/tabtps gui</code></td><td>Opens the settings menu.</td><td><code>tabtps.gui</code></td></tr>
+          <tr><td><code>/tabtps gui</code> or <code>/tabtps</code></td><td>Opens the settings menu. Without the permission, <code>/tabtps</code> shows the help.</td><td><code>tabtps.gui</code></td></tr>
           <tr><td><code>/tabtps regions [count]</code></td><td>Lists the busiest regions. Folia and Canvas only.</td><td><code>tabtps.regions</code></td></tr>
           <tr><td><code>/tabtps mobcaps</code></td><td>Lists the mob caps of every world.</td><td><code>tabtps.mobcaps</code></td></tr>
           <tr><td><code>/tickinfo</code>, <code>/mspt</code></td><td>TPS and tick time overview, per region on Folia.</td><td><code>tabtps.tps</code></td></tr>

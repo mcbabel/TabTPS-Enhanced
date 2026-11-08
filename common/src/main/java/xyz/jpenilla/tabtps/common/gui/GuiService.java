@@ -48,11 +48,11 @@ import xyz.jpenilla.tabtps.common.TabTPS;
 import xyz.jpenilla.tabtps.common.TabTPSPlatform;
 import xyz.jpenilla.tabtps.common.User;
 import xyz.jpenilla.tabtps.common.config.DisplayConfig;
+import xyz.jpenilla.tabtps.common.config.Theme;
 import xyz.jpenilla.tabtps.common.display.DisplayHandler;
 import xyz.jpenilla.tabtps.common.util.Components;
 import xyz.jpenilla.tabtps.common.util.Constants;
 import xyz.jpenilla.tabtps.common.util.DiscordWebhooks;
-import xyz.jpenilla.tabtps.common.config.Theme;
 import xyz.jpenilla.tabtps.common.util.TPSUtil;
 import xyz.jpenilla.tabtps.common.util.TranslatableProvider;
 
@@ -66,6 +66,7 @@ import static net.kyori.adventure.text.format.NamedTextColor.WHITE;
 
 public final class GuiService {
   static final String SEPARATOR = "\u00a6";
+  public static final String CLICK_ID = "tabtps:gui";
   private static final String INVALID_WEBHOOK = "invalid webhook";
   private static final String HIDDEN = "(hidden)";
   private static final Gson GSON = new GsonBuilder().disableHtmlEscaping().create();
@@ -97,6 +98,9 @@ public final class GuiService {
           user.sendMessage(Components.ofChildren(Constants.PREFIX, space(), notice));
         }
         platform.openMenu(user, this.menu(user, page));
+        if (this.tabTPS.configManager().pluginSettings().menuSounds()) {
+          platform.playMenuSound(user, notice == null ? "minecraft:item.book.page_turn" : "minecraft:entity.experience_orb.pickup");
+        }
       } else {
         user.sendMessage(Components.ofChildren(Constants.PREFIX, space(), Messages.GUI_TEXT_UNSUPPORTED.styled(RED)));
       }
@@ -129,16 +133,61 @@ public final class GuiService {
     this.open(user, Pages.SELF);
   }
 
-  public void apply(final @NonNull User<?> user, final @NonNull String page, final @NonNull String data) {
+  public void click(final @NonNull User<?> user, final @NonNull String payload) {
     if (!user.hasPermission(Constants.PERMISSION_COMMAND_GUI)) {
       return;
     }
+    final Map<String, String> values = ClickPayload.parse(payload);
+    final String command = values.remove("command");
+    final String[] args = command == null ? new String[0] : command.trim().split(" +");
+    if (args.length < 2 || !args[0].equals("tabtps") || !args[1].equals("gui")) {
+      return;
+    }
+    if (args.length == 2) {
+      this.open(user, Pages.MAIN);
+      return;
+    }
+    switch (args[2]) {
+      case "reload":
+        this.reload(user);
+        break;
+      case "close":
+        this.tabTPS.platform().closeDialog(user);
+        break;
+      case "open":
+        if (args.length > 3) {
+          this.open(user, args[3]);
+        }
+        break;
+      case "self":
+        if (args.length > 3) {
+          this.toggleOwn(user, args[3]);
+        }
+        break;
+      case "apply":
+        if (args.length > 3) {
+          this.apply(user, args[3], values);
+        }
+        break;
+      default:
+        break;
+    }
+  }
+
+  public void apply(final @NonNull User<?> user, final @NonNull String page, final @NonNull String data) {
     final Map<String, String> values = new HashMap<>();
     for (final String part : data.split(SEPARATOR)) {
       final int split = part.indexOf('=');
       if (split > 0) {
         values.put(part.substring(0, split).trim(), part.substring(split + 1));
       }
+    }
+    this.apply(user, page, values);
+  }
+
+  private void apply(final User<?> user, final String page, final Map<String, String> values) {
+    if (!user.hasPermission(Constants.PERMISSION_COMMAND_GUI)) {
+      return;
     }
     final String[] parts = page.split("\\.");
     try {
@@ -246,6 +295,15 @@ public final class GuiService {
     }
   }
 
+  private List<Setting> generalSettings() {
+    if (this.tabTPS.platform().dialogsSupported()) {
+      return Pages.GENERAL_SETTINGS;
+    }
+    final List<Setting> settings = new ArrayList<>(Pages.GENERAL_SETTINGS);
+    settings.removeIf(setting -> setting.id().equals("gui_style"));
+    return settings;
+  }
+
   private List<String> availableModules() {
     final List<String> modules = new ArrayList<>();
     for (final String module : ConfigEditor.MODULES) {
@@ -300,15 +358,13 @@ public final class GuiService {
   }
 
   private Component status() {
-    final double tps = this.tabTPS.platform().tickTimeService().displayTps();
-    final double mspt = this.tabTPS.platform().tickTimeService().averageMspt();
+    return text("TabTPS Enhanced " + Constants.TABTPS_VERSION, GRAY);
+  }
+
+  private Component liveStatus(final User<?> user) {
     return Components.ofChildren(
-      text("TabTPS Enhanced " + Constants.TABTPS_VERSION, GRAY),
-      text("  •  ", DARK_GRAY),
-      text("TPS ", GRAY), TPSUtil.coloredTps(tps, Theme.DEFAULT.colorScheme()),
-      text("  MSPT ", GRAY), TPSUtil.coloredMspt(mspt, Theme.DEFAULT.colorScheme()),
-      text("  •  ", DARK_GRAY),
-      Messages.GUI_TEXT_PLAYERS.styled(GRAY, text(this.tabTPS.platform().userService().onlinePlayers(), WHITE))
+      text("TPS ", GRAY), TPSUtil.coloredTps(this.tabTPS.platform().tickTimeService().displayTps(user), Theme.DEFAULT.colorScheme()),
+      text("  MSPT ", GRAY), TPSUtil.coloredMspt(this.tabTPS.platform().tickTimeService().averageMspt(user), Theme.DEFAULT.colorScheme())
     );
   }
 
@@ -318,7 +374,7 @@ public final class GuiService {
     final DialogBuilder builder;
     switch (parts[0]) {
       case Pages.GENERAL:
-        builder = this.settingsDialog(locale, page, Messages.GUI_PAGE_GENERAL, Pages.GENERAL_SETTINGS, this.editor(parts), Pages.MAIN, extra -> { });
+        builder = this.settingsDialog(locale, page, Messages.GUI_PAGE_GENERAL, this.generalSettings(), this.editor(parts), Pages.MAIN, extra -> { });
         break;
       case Pages.LAG:
         builder = this.settingsDialog(locale, page, Messages.GUI_PAGE_LAG, Pages.LAG_SETTINGS, this.editor(parts), Pages.MAIN, extra -> { });
@@ -404,7 +460,7 @@ public final class GuiService {
     if (notice != null) {
       builder.notice(notice);
     }
-    return builder.build();
+    return builder.build(this.tabTPS.platform().customClicksSupported());
   }
 
   private DialogBuilder settingsDialog(
@@ -461,7 +517,7 @@ public final class GuiService {
     final String[] parts = page.split("\\.");
     switch (parts[0]) {
       case Pages.GENERAL:
-        return this.settingsMenu(this.chestTitle(Messages.GUI_PAGE_GENERAL, locale), page, Pages.GENERAL_SETTINGS, this.editor(parts), Pages.MAIN);
+        return this.settingsMenu(this.chestTitle(Messages.GUI_PAGE_GENERAL, locale), page, this.generalSettings(), this.editor(parts), Pages.MAIN);
       case Pages.LAG:
         return this.settingsMenu(this.chestTitle(Messages.GUI_PAGE_LAG, locale), page, Pages.LAG_SETTINGS, this.editor(parts), Pages.MAIN);
       case Pages.DISPLAYS: {
@@ -514,8 +570,8 @@ public final class GuiService {
       default: {
         final Menu menu = new Menu(this.chestTitle(Messages.GUI_PAGE_MAIN, locale), 5);
         this.border(menu);
-        menu.set(4, new MenuItem("nether_star", bold(Components.gradient("TabTPS Enhanced", ACCENT, ACCENT_DARK)),
-          Arrays.asList(this.status(), Component.empty(), Messages.GUI_PAGE_MAIN_BODY.styled(GRAY)), true, null));
+        menu.live(4, () -> new MenuItem("nether_star", bold(Components.gradient("TabTPS Enhanced", ACCENT, ACCENT_DARK)),
+          Arrays.asList(this.status(), this.liveStatus(user), Component.empty(), Messages.GUI_PAGE_MAIN_BODY.styled(GRAY)), true, null));
         menu.set(20, this.pageItem("painting", Messages.GUI_PAGE_DISPLAYS, Messages.GUI_PAGE_DISPLAYS_DESCRIPTION, Pages.DISPLAYS));
         menu.set(21, this.pageItem("bell", Messages.GUI_PAGE_LAG, Messages.GUI_PAGE_LAG_DESCRIPTION, Pages.LAG));
         menu.set(23, this.pageItem("comparator", Messages.GUI_PAGE_GENERAL, Messages.GUI_PAGE_GENERAL_DESCRIPTION, Pages.GENERAL));

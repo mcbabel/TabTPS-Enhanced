@@ -108,6 +108,7 @@ public final class TabTPSForge implements TabTPSPlatform<ServerPlayer, ForgeUser
     PlayerEvent.PlayerLoggedInEvent.BUS.addListener(event -> {
       if (event.getEntity() instanceof ServerPlayer player) {
         this.userService.handleJoin(player);
+        this.gui.watchClicks(player);
       }
     });
     PlayerEvent.PlayerLoggedOutEvent.BUS.addListener(event -> {
@@ -234,6 +235,16 @@ public final class TabTPSForge implements TabTPSPlatform<ServerPlayer, ForgeUser
   }
 
   @Override
+  public boolean customClicksSupported() {
+    return true;
+  }
+
+  @Override
+  public void closeDialog(final @NonNull User<?> user) {
+    this.gui.closeDialog(user);
+  }
+
+  @Override
   public void showDialog(final @NonNull User<?> user, final @NonNull String dialog) {
     this.gui.showDialog(user, dialog);
   }
@@ -251,6 +262,11 @@ public final class TabTPSForge implements TabTPSPlatform<ServerPlayer, ForgeUser
   @Override
   public void closeMenu(final @NonNull User<?> user) {
     this.gui.close(user);
+  }
+
+  @Override
+  public void playMenuSound(final @NonNull User<?> user, final @NonNull String sound) {
+    this.gui.playSound(user, sound);
   }
 
   @Override

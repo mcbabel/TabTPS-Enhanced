@@ -24,6 +24,7 @@
 package xyz.jpenilla.tabtps.common.gui;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import java.util.List;
 import java.util.Locale;
@@ -146,7 +147,19 @@ final class DialogBuilder {
     this.exit.addProperty("width", 200);
   }
 
-  @NonNull JsonObject build() {
+  @NonNull JsonObject build(final boolean customClicks) {
+    if (customClicks) {
+      for (final JsonElement element : this.actions) {
+        final JsonObject button = element.getAsJsonObject();
+        button.add("action", custom(button.getAsJsonObject("action")));
+      }
+      if (this.exit != null) {
+        final JsonObject close = new JsonObject();
+        close.addProperty("type", "minecraft:run_command");
+        close.addProperty("command", "tabtps gui close");
+        this.exit.add("action", custom(close));
+      }
+    }
     final JsonObject dialog = new JsonObject();
     dialog.addProperty("type", "minecraft:multi_action");
     dialog.add("title", this.json(this.title));
@@ -158,6 +171,9 @@ final class DialogBuilder {
     }
     dialog.addProperty("can_close_with_escape", true);
     dialog.addProperty("pause", false);
+    if (customClicks) {
+      dialog.addProperty("after_action", "none");
+    }
     dialog.add("actions", this.actions);
     dialog.addProperty("columns", 2);
     if (this.exit != null) {
@@ -178,6 +194,24 @@ final class DialogBuilder {
       builder.append(word.equals("TPS") || word.equals("MSPT") ? word : word.charAt(0) + word.substring(1).toLowerCase(Locale.ROOT));
     }
     return builder.toString();
+  }
+
+  private static JsonObject custom(final JsonObject action) {
+    final JsonObject custom = new JsonObject();
+    final JsonObject payload = new JsonObject();
+    custom.addProperty("id", GuiService.CLICK_ID);
+    if (action.has("template")) {
+      final String template = action.get("template").getAsString();
+      final int separator = template.indexOf(GuiService.SEPARATOR);
+      payload.addProperty("command", (separator < 0 ? template : template.substring(0, separator)).trim());
+      custom.addProperty("type", "minecraft:dynamic/custom");
+      custom.add("additions", payload);
+    } else {
+      payload.addProperty("command", action.get("command").getAsString());
+      custom.addProperty("type", "minecraft:custom");
+      custom.add("payload", payload);
+    }
+    return custom;
   }
 
   private JsonObject button(final Component label, final @Nullable Component tooltip, final JsonObject action) {

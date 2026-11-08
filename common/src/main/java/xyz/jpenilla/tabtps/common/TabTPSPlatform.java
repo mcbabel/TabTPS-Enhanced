@@ -71,6 +71,13 @@ public interface TabTPSPlatform<P, U extends User<P>> {
   default void showDialog(final @NonNull User<?> user, final @NonNull String dialog) {
   }
 
+  default boolean customClicksSupported() {
+    return false;
+  }
+
+  default void closeDialog(final @NonNull User<?> user) {
+  }
+
   default boolean menusSupported() {
     return false;
   }
@@ -79,6 +86,9 @@ public interface TabTPSPlatform<P, U extends User<P>> {
   }
 
   default void closeMenu(final @NonNull User<?> user) {
+  }
+
+  default void playMenuSound(final @NonNull User<?> user, final @NonNull String sound) {
   }
 
   default void promptChat(final @NonNull User<?> user, final @NonNull Consumer<String> input) {

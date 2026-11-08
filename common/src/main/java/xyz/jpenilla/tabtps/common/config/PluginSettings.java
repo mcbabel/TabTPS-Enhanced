@@ -100,6 +100,13 @@ public final class PluginSettings {
     return this.guiStyle == null ? "auto" : this.guiStyle.trim().toLowerCase(Locale.ROOT);
   }
 
+  @Comment("Play a sound when switching pages or saving a setting in the chest menu")
+  private boolean menuSounds = false;
+
+  public boolean menuSounds() {
+    return this.menuSounds;
+  }
+
   public @NonNull HelpColors helpColors() {
     return this.helpColors;
   }

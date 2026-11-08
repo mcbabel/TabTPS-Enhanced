@@ -44,11 +44,21 @@ public final class GuiCommand extends TabTPSCommand {
 
   public GuiCommand(final @NonNull TabTPS tabTPS, final @NonNull Commands commands) {
     super(tabTPS, commands);
-    this.gui = new GuiService(tabTPS);
+    this.gui = tabTPS.gui();
   }
 
   @Override
   public void register() {
+    this.commands.register(this.commands.rootBuilder()
+      .commandDescription(richDescription(Messages.COMMAND_GUI_DESCRIPTION.plain()))
+      .handler(ctx -> {
+        if (ctx.sender() instanceof User && ctx.sender().hasPermission(Constants.PERMISSION_COMMAND_GUI)) {
+          this.gui.open((User<?>) ctx.sender(), "main");
+        } else {
+          this.commands.commandManager().commandExecutor().executeCommand(ctx.sender(), "tabtps help");
+        }
+      }));
+
     final Command.Builder<Commander> root = this.commands.rootBuilder().literal("gui")
       .permission(Constants.PERMISSION_COMMAND_GUI);
 

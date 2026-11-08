@@ -25,6 +25,7 @@ package xyz.jpenilla.tabtps.common.gui;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 import net.kyori.adventure.text.Component;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -33,6 +34,7 @@ public final class Menu {
   private final Component title;
   private final int rows;
   private final Map<Integer, MenuItem> items = new HashMap<>();
+  private final Map<Integer, Supplier<MenuItem>> live = new HashMap<>();
 
   public Menu(final @NonNull Component title, final int rows) {
     this.title = title;
@@ -49,6 +51,25 @@ public final class Menu {
 
   public void set(final int slot, final @NonNull MenuItem item) {
     this.items.put(slot, item);
+  }
+
+  public void live(final int slot, final @NonNull Supplier<MenuItem> item) {
+    this.live.put(slot, item);
+    this.items.put(slot, item.get());
+  }
+
+  public boolean live() {
+    return !this.live.isEmpty();
+  }
+
+  public @NonNull Map<Integer, MenuItem> refresh() {
+    final Map<Integer, MenuItem> updated = new HashMap<>();
+    for (final Map.Entry<Integer, Supplier<MenuItem>> entry : this.live.entrySet()) {
+      final MenuItem item = entry.getValue().get();
+      this.items.put(entry.getKey(), item);
+      updated.put(entry.getKey(), item);
+    }
+    return updated;
   }
 
   public @Nullable MenuItem item(final int slot) {

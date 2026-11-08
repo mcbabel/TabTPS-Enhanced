@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.translation.GlobalTranslator;
@@ -39,6 +40,7 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -55,6 +57,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import xyz.jpenilla.tabtps.common.User;
+import xyz.jpenilla.tabtps.common.gui.GuiService;
 import xyz.jpenilla.tabtps.common.gui.Menu;
 import xyz.jpenilla.tabtps.common.gui.MenuItem;
 import xyz.jpenilla.tabtps.folia.TabTPSFolia;
@@ -67,20 +70,64 @@ public final class BukkitGui implements Listener {
     .build();
 
   private final TabTPSFolia plugin;
-  private final boolean regionized;
+  private final PlayerTasks tasks;
   private final boolean dialogs;
   private final Map<UUID, Consumer<String>> prompts = new ConcurrentHashMap<>();
   private @Nullable DialogPackets packets;
   private boolean packetsResolved;
+  private boolean customClicks;
 
   public BukkitGui(final @NonNull TabTPSFolia plugin, final boolean regionized, final @NonNull String minecraftVersion) {
     this.plugin = plugin;
-    this.regionized = regionized;
+    this.tasks = new PlayerTasks(plugin, regionized);
     this.dialogs = atLeast(minecraftVersion, 1, 21, 6);
   }
 
   public boolean dialogsSupported() {
     return this.dialogs;
+  }
+
+  public boolean customClicksSupported() {
+    return this.customClicks;
+  }
+
+  public void registerCustomClicks() {
+    if (!this.dialogs) {
+      return;
+    }
+    try {
+      final Class<? extends Event> type = Class.forName("io.papermc.paper.event.player.PlayerCustomClickEvent").asSubclass(Event.class);
+      final Class<?> gameConnection = Class.forName("io.papermc.paper.connection.PlayerGameConnection");
+      final Method identifier = type.getMethod("getIdentifier");
+      final Method tag = type.getMethod("getTag");
+      final Method connection = type.getMethod("getCommonConnection");
+      final Method player = gameConnection.getMethod("getPlayer");
+      final Method key = Class.forName(String.join(".", "net", "kyori", "adventure", "key", "Key")).getMethod("asString");
+      final Method snbt = Class.forName(String.join(".", "net", "kyori", "adventure", "nbt", "api", "BinaryTagHolder")).getMethod("string");
+      Bukkit.getPluginManager().registerEvent(type, this, EventPriority.NORMAL, (listener, event) -> {
+        if (!type.isInstance(event)) {
+          return;
+        }
+        try {
+          if (!GuiService.CLICK_ID.equals(key.invoke(identifier.invoke(event)))) {
+            return;
+          }
+          final Object source = connection.invoke(event);
+          if (!gameConnection.isInstance(source)) {
+            return;
+          }
+          final Player target = (Player) player.invoke(source);
+          final Object holder = tag.invoke(event);
+          final String payload = holder == null ? "" : (String) snbt.invoke(holder);
+          final User<?> user = this.plugin.userService().user(target);
+          this.run(target, () -> this.plugin.tabTPS().gui().click(user, payload));
+        } catch (final ReflectiveOperationException | RuntimeException e) {
+          this.plugin.logger().warn("Failed to handle a settings menu click", e);
+        }
+      }, this.plugin);
+      this.customClicks = true;
+    } catch (final ReflectiveOperationException | RuntimeException ignored) {
+    }
   }
 
   public void showDialog(final @NonNull User<?> user, final @NonNull String dialog) {
@@ -92,6 +139,9 @@ public final class BukkitGui implements Listener {
     if (packets != null) {
       this.run(player, () -> {
         try {
+          if (player.getOpenInventory().getTopInventory().getHolder() instanceof Holder) {
+            player.closeInventory();
+          }
           packets.send(player, dialog);
         } catch (final ReflectiveOperationException | RuntimeException e) {
           this.plugin.logger().warn("Failed to show the settings dialog", e);
@@ -99,8 +149,22 @@ public final class BukkitGui implements Listener {
       });
       return;
     }
-    final String command = "dialog show " + player.getUniqueId() + " " + dialog;
+    final String command = "dialog show " + player.getName() + " " + dialog;
     this.global(() -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command));
+  }
+
+  public void closeDialog(final @NonNull User<?> user) {
+    final Player player = player(user);
+    if (player == null) {
+      return;
+    }
+    this.run(player, () -> {
+      try {
+        Class.forName(String.join(".", "net", "kyori", "adventure", "audience", "Audience")).getMethod("closeDialog").invoke(player);
+      } catch (final ReflectiveOperationException | RuntimeException e) {
+        this.plugin.logger().warn("Failed to close the settings dialog", e);
+      }
+    });
   }
 
   private synchronized @Nullable DialogPackets packets() {
@@ -118,6 +182,10 @@ public final class BukkitGui implements Listener {
     }
     final Locale locale = locale(player);
     this.run(player, () -> {
+      final InventoryHolder current = player.getOpenInventory().getTopInventory().getHolder();
+      if (current instanceof Holder && ((Holder) current).show(menu, item -> this.stack(item, locale))) {
+        return;
+      }
       final Holder holder = new Holder(menu);
       final Inventory inventory = Bukkit.createInventory(holder, menu.rows() * 9, LEGACY.serialize(GlobalTranslator.render(menu.title(), locale)));
       holder.inventory = inventory;
@@ -127,7 +195,33 @@ public final class BukkitGui implements Listener {
         }
       }
       player.openInventory(inventory);
+      if (menu.live()) {
+        this.refresh(player, holder, locale);
+      }
     });
+  }
+
+  private void refresh(final Player player, final Holder holder, final Locale locale) {
+    final Inventory inventory = holder.getInventory();
+    final Consumer<Runnable> update = cancel -> {
+      if (player.getOpenInventory().getTopInventory() != inventory) {
+        cancel.run();
+        return;
+      }
+      for (final Map.Entry<Integer, MenuItem> entry : holder.menu.refresh().entrySet()) {
+        if (entry.getKey() < inventory.getSize()) {
+          inventory.setItem(entry.getKey(), this.stack(entry.getValue(), locale));
+        }
+      }
+    };
+    this.tasks.repeat(player, update);
+  }
+
+  public void playSound(final @NonNull User<?> user, final @NonNull String sound) {
+    final Player player = player(user);
+    if (player != null) {
+      this.run(player, () -> player.playSound(player.getLocation(), sound, 0.5F, 1.0F));
+    }
   }
 
   public void close(final @NonNull User<?> user) {
@@ -255,19 +349,11 @@ public final class BukkitGui implements Listener {
   }
 
   private void run(final Player player, final Runnable task) {
-    if (this.regionized) {
-      player.getScheduler().run(this.plugin, scheduled -> task.run(), null);
-    } else {
-      Bukkit.getScheduler().runTask(this.plugin, task);
-    }
+    this.tasks.run(player, task);
   }
 
   private void global(final Runnable task) {
-    if (this.regionized) {
-      Bukkit.getGlobalRegionScheduler().execute(this.plugin, task);
-    } else {
-      Bukkit.getScheduler().runTask(this.plugin, task);
-    }
+    this.tasks.global(task);
   }
 
   private static @Nullable Player player(final User<?> user) {
@@ -287,11 +373,23 @@ public final class BukkitGui implements Listener {
   }
 
   private static final class Holder implements InventoryHolder {
-    private final Menu menu;
+    private Menu menu;
     private Inventory inventory;
 
     Holder(final Menu menu) {
       this.menu = menu;
+    }
+
+    boolean show(final Menu next, final Function<MenuItem, ItemStack> stacks) {
+      if (next.rows() * 9 != this.inventory.getSize() || !next.title().equals(this.menu.title())) {
+        return false;
+      }
+      this.menu = next;
+      for (int slot = 0; slot < this.inventory.getSize(); slot++) {
+        final MenuItem item = next.item(slot);
+        this.inventory.setItem(slot, item == null ? null : stacks.apply(item));
+      }
+      return true;
     }
 
     @Override

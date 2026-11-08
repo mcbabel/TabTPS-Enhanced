@@ -48,7 +48,9 @@ final class Pages {
     Setting.toggle("proxy_stats", Messages.GUI_SETTING_PROXY_STATS, "ender_eye", "send-stats-to-proxy"),
     Setting.number("rate_tab", Messages.GUI_SETTING_RATE_TAB, "clock", 50, 2000, 50, true, "update-rates", "tab"),
     Setting.number("rate_actionbar", Messages.GUI_SETTING_RATE_ACTIONBAR, "clock", 50, 2000, 50, true, "update-rates", "action-bar"),
-    Setting.number("rate_bossbar", Messages.GUI_SETTING_RATE_BOSSBAR, "clock", 50, 2000, 50, true, "update-rates", "boss-bar")
+    Setting.number("rate_bossbar", Messages.GUI_SETTING_RATE_BOSSBAR, "clock", 50, 2000, 50, true, "update-rates", "boss-bar"),
+    Setting.choice("gui_style", Messages.GUI_SETTING_GUI_STYLE, "chest", tabTPS -> Arrays.asList("auto", "dialog", "chest"), "gui-style"),
+    Setting.toggle("menu_sounds", Messages.GUI_SETTING_MENU_SOUNDS, "note_block", "menu-sounds")
   ));
 
   static final List<Setting> LAG_SETTINGS = Collections.unmodifiableList(Arrays.asList(
