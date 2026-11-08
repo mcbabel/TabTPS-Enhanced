@@ -111,7 +111,7 @@ public final class LagAlerts {
     Component message = lowTps
       ? Messages.MISC_LAG_ALERT_LOW_TPS.styled(RED, text(TPSUtil.formatDouble(settings.tpsBelow()), WHITE), text(settings.seconds(), WHITE), tps(sample.tps))
       : Messages.MISC_LAG_ALERT_HIGH_MSPT.styled(RED, text(TPSUtil.formatDouble(settings.msptAbove()), WHITE), text(settings.seconds(), WHITE), mspt(sample.mspt));
-    final RegionStatsService.Region region = lowTps ? sample.slowestRegion : sample.busiestRegion;
+    final RegionStatsService.Region region = sample.busiestRegion;
     if (region != null && region.located()) {
       message = message.append(space()).append(Messages.MISC_LAG_ALERT_REGION.styled(GRAY,
         text(region.world() + " " + region.blockX() + ", " + region.blockZ(), WHITE)));
@@ -134,11 +134,11 @@ public final class LagAlerts {
             busiest = region;
           }
         }
-        return new Sample(slowest.tps(), busiest.mspt(), slowest, busiest);
+        return new Sample(slowest.tps(), busiest.mspt(), busiest);
       }
     }
     final TickTimeService ticks = this.tabTPS.platform().tickTimeService();
-    return new Sample(ticks.displayTps(), ticks.averageMspt(), null, null);
+    return new Sample(ticks.displayTps(), ticks.averageMspt(), null);
   }
 
   private void send(final @NonNull Component message, final PluginSettings.@NonNull LagAlerts settings) {
@@ -202,13 +202,11 @@ public final class LagAlerts {
   private static final class Sample {
     private final double tps;
     private final double mspt;
-    private final RegionStatsService.@Nullable Region slowestRegion;
     private final RegionStatsService.@Nullable Region busiestRegion;
 
-    Sample(final double tps, final double mspt, final RegionStatsService.@Nullable Region slowestRegion, final RegionStatsService.@Nullable Region busiestRegion) {
+    Sample(final double tps, final double mspt, final RegionStatsService.@Nullable Region busiestRegion) {
       this.tps = tps;
       this.mspt = mspt;
-      this.slowestRegion = slowestRegion;
       this.busiestRegion = busiestRegion;
     }
   }
