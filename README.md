@@ -1,6 +1,4 @@
-<img src="assets/logo-256.png" width="128">
-
-# TabTPS-Folia
+<img src="assets/banner.png" alt="TabTPS-Folia">
 
 Shows TPS, MSPT and other server stats in the tab list, action bar and boss bar. On Folia every player sees the values of the region they are in, not a server-wide average.
 
