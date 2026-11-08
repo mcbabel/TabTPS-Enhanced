@@ -275,7 +275,7 @@ testservers/test.sh all
 
 `forge-*` entries install the server with the Forge installer and put the mod into `mods/`. `testservers/forge-client` starts Forge's development client straight into a singleplayer world, for example `./gradlew -p testservers/forge-client runClient`, or with `-PforgeVersion=1.20.1-47.4.28 -PjavaVersion=17 -Pmappings=1.20.1` for 1.20.1. It loads whatever jar is in `testservers/forge-client/run/<forge version>/mods/` and expects a world called `tabtps-test` in `saves/`.
 
-Release jars are built on GitHub, not locally. Publish a GitHub release with notes only and no files: `.github/workflows/modrinth.yml` builds the jars, attaches them to the release and uploads the same jars to Modrinth.
+Releases are made entirely on GitHub. Raise `version` in `gradle.properties`, add the notes as `release-notes/<version>.md`, push, then run the **Release** workflow (Actions → Release → Run workflow). It builds the plugin, both Forge mods and the Velocity plugin, creates the tag and the GitHub release with those jars, and uploads the same jars to Modrinth with the same notes.
 
 ## Credits
 
