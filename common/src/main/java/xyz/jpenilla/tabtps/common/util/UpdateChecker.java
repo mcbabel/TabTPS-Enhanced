@@ -40,6 +40,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public final class UpdateChecker {
   private static final JsonParser parser = new JsonParser();
@@ -48,7 +49,7 @@ public final class UpdateChecker {
   private UpdateChecker() {
   }
 
-  public static @NonNull List<String> checkVersion(final @NonNull String version, final @NonNull String loader, final @NonNull String minecraftVersion) {
+  public static @NonNull Result check(final @NonNull String version, final @NonNull String loader, final @NonNull String minecraftVersion) {
     final JsonArray result;
     try {
       final String query = "loaders=" + encode("[\"" + loader + "\"]") + "&game_versions=" + encode("[\"" + minecraftVersion + "\"]");
@@ -60,7 +61,7 @@ public final class UpdateChecker {
         result = parser.parse(reader).getAsJsonArray();
       }
     } catch (final IOException | RuntimeException exception) {
-      return Collections.singletonList("Failed to look for updates: " + exception.getMessage());
+      return new Result(Collections.singletonList("Failed to look for updates: " + exception.getMessage()), null);
     }
 
     final Set<String> newer = new LinkedHashSet<>();
@@ -79,15 +80,57 @@ public final class UpdateChecker {
       }
     }
     if (newer.isEmpty()) {
-      return Collections.emptyList();
+      return new Result(Collections.emptyList(), null);
     }
 
-    final String latest = newer.iterator().next();
+    final Update update = new Update(version, newer.iterator().next(), "https://modrinth.com/plugin/" + PROJECT + "/version/" + latestId);
     final List<String> list = new ArrayList<>();
     list.add("There is an update available for TabTPS!");
-    list.add("This server is running v" + version + ", the latest version for Minecraft " + minecraftVersion + " is v" + latest + " (" + newer.size() + " " + (newer.size() == 1 ? "version" : "versions") + " behind).");
-    list.add("Download it from Modrinth: https://modrinth.com/plugin/" + PROJECT + "/version/" + latestId);
-    return list;
+    list.add("This server is running v" + version + ", the latest version for Minecraft " + minecraftVersion + " is v" + update.latest() + " (" + newer.size() + " " + (newer.size() == 1 ? "version" : "versions") + " behind).");
+    list.add("Download it from Modrinth: " + update.url());
+    return new Result(list, update);
+  }
+
+  public static final class Result {
+    private final List<String> lines;
+    private final @Nullable Update update;
+
+    Result(final @NonNull List<String> lines, final @Nullable Update update) {
+      this.lines = lines;
+      this.update = update;
+    }
+
+    public @NonNull List<String> lines() {
+      return this.lines;
+    }
+
+    public @Nullable Update update() {
+      return this.update;
+    }
+  }
+
+  public static final class Update {
+    private final String current;
+    private final String latest;
+    private final String url;
+
+    Update(final @NonNull String current, final @NonNull String latest, final @NonNull String url) {
+      this.current = current;
+      this.latest = latest;
+      this.url = url;
+    }
+
+    public @NonNull String current() {
+      return this.current;
+    }
+
+    public @NonNull String latest() {
+      return this.latest;
+    }
+
+    public @NonNull String url() {
+      return this.url;
+    }
   }
 
   private static @NonNull String encode(final @NonNull String value) throws IOException {

@@ -37,8 +37,15 @@ import org.spongepowered.configurate.objectmapping.meta.Comment;
 @ConfigSerializable
 public final class PluginSettings {
 
-  @Comment("Should the plugin check GitHub for updates on startup?")
+  @Comment("Should the plugin check Modrinth for updates on startup?")
   private boolean updateChecker = true;
+
+  @Comment("Should players with the tabtps.updatenotify permission (operators by default) get a short chat message about a new version when they join?\nOnly works while update-checker is enabled")
+  private boolean updateNotifyOnJoin = true;
+
+  public boolean updateNotifyOnJoin() {
+    return this.updateNotifyOnJoin;
+  }
 
   @Comment("How many milliseconds in between updates")
   private UpdateRates updateRates = new UpdateRates();

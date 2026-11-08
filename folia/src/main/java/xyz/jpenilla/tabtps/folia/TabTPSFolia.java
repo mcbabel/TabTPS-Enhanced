@@ -26,6 +26,8 @@ package xyz.jpenilla.tabtps.folia;
 
 import java.nio.file.Path;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
@@ -52,7 +54,6 @@ import xyz.jpenilla.tabtps.common.service.MobCapService;
 import xyz.jpenilla.tabtps.common.service.RegionStatsService;
 import xyz.jpenilla.tabtps.common.service.TickTimeService;
 import xyz.jpenilla.tabtps.common.service.UserService;
-import xyz.jpenilla.tabtps.common.util.UpdateChecker;
 import xyz.jpenilla.tabtps.folia.command.FoliaConsoleCommander;
 import xyz.jpenilla.tabtps.folia.command.FoliaPingCommand;
 import xyz.jpenilla.tabtps.folia.command.FoliaTickInfoCommandFormatter;
@@ -100,7 +101,7 @@ public final class TabTPSFolia extends JavaPlugin implements TabTPSPlatform<Play
 
     if (this.tabTPS.configManager().pluginSettings().updateChecker()) {
       this.tabTPS.executor().execute(() ->
-        UpdateChecker.checkVersion(this.getDescription().getVersion(), updateLoader(), Bukkit.getBukkitVersion().split("-")[0]).forEach(this.logger::info)
+        this.tabTPS.checkForUpdates(this.getDescription().getVersion(), updateLoader(), minecraftVersion())
       );
     }
   }
@@ -141,6 +142,15 @@ public final class TabTPSFolia extends JavaPlugin implements TabTPSPlatform<Play
     } catch (final ClassNotFoundException e) {
       return false;
     }
+  }
+
+  private static String minecraftVersion() {
+    try {
+      return (String) Server.class.getMethod("getMinecraftVersion").invoke(Bukkit.getServer());
+    } catch (final ReflectiveOperationException | RuntimeException ignored) {
+    }
+    final Matcher matcher = Pattern.compile("\\(MC: ([^)]+)\\)").matcher(Bukkit.getVersion());
+    return matcher.find() ? matcher.group(1) : Bukkit.getBukkitVersion().split("-")[0];
   }
 
   private static String updateLoader() {

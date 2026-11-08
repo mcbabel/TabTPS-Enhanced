@@ -30,7 +30,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.stream.Stream;
+import net.kyori.adventure.text.event.ClickEvent;
 import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import xyz.jpenilla.tabtps.common.command.Commands;
 import xyz.jpenilla.tabtps.common.command.TabTPSCommand;
 import xyz.jpenilla.tabtps.common.command.commands.AboutCommand;
@@ -42,8 +44,20 @@ import xyz.jpenilla.tabtps.common.command.commands.ReloadCommand;
 import xyz.jpenilla.tabtps.common.command.commands.ToggleDisplayCommands;
 import xyz.jpenilla.tabtps.common.config.ConfigManager;
 import xyz.jpenilla.tabtps.common.config.DisplayConfig;
+import xyz.jpenilla.tabtps.common.config.PluginSettings;
 import xyz.jpenilla.tabtps.common.util.CPUMonitor;
+import xyz.jpenilla.tabtps.common.util.Components;
+import xyz.jpenilla.tabtps.common.util.Constants;
 import xyz.jpenilla.tabtps.common.util.DaemonThreadFactory;
+import xyz.jpenilla.tabtps.common.util.UpdateChecker;
+
+import static net.kyori.adventure.text.Component.space;
+import static net.kyori.adventure.text.Component.text;
+import static net.kyori.adventure.text.format.NamedTextColor.AQUA;
+import static net.kyori.adventure.text.format.NamedTextColor.DARK_GRAY;
+import static net.kyori.adventure.text.format.NamedTextColor.GRAY;
+import static net.kyori.adventure.text.format.NamedTextColor.GREEN;
+import static net.kyori.adventure.text.format.NamedTextColor.YELLOW;
 
 public final class TabTPS {
   private final TabTPSPlatform<?, ?> platform;
@@ -52,6 +66,7 @@ public final class TabTPS {
   private final ScheduledExecutorService executor;
   private final Commands commands;
   private volatile long startedAt = System.currentTimeMillis();
+  private volatile UpdateChecker.@Nullable Update availableUpdate;
 
   public TabTPS(final @NonNull TabTPSPlatform<?, ?> platform) {
     this.platform = platform;
@@ -123,6 +138,35 @@ public final class TabTPS {
 
   public @NonNull Duration uptime() {
     return Duration.ofMillis(System.currentTimeMillis() - this.startedAt);
+  }
+
+  public void checkForUpdates(final @NonNull String version, final @NonNull String loader, final @NonNull String minecraftVersion) {
+    try {
+      final UpdateChecker.Result result = UpdateChecker.check(version, loader, minecraftVersion);
+      result.lines().forEach(this.platform.logger()::info);
+      this.availableUpdate = result.update();
+    } catch (final RuntimeException | LinkageError e) {
+      this.platform.logger().warn("Failed to look for updates", e);
+    }
+  }
+
+  public void notifyAboutUpdate(final @NonNull User<?> user) {
+    final UpdateChecker.Update update = this.availableUpdate;
+    final PluginSettings settings = this.configManager.pluginSettings();
+    if (update == null || !settings.updateChecker() || !settings.updateNotifyOnJoin() || !user.hasPermission(Constants.PERMISSION_UPDATE_NOTIFY)) {
+      return;
+    }
+    user.sendMessage(Components.ofChildren(
+      Constants.PREFIX,
+      space(),
+      Messages.MISC_TEXT_UPDATE_AVAILABLE.styled(GRAY, text("v" + update.latest(), GREEN), text("v" + update.current(), YELLOW)),
+      space(),
+      text()
+        .append(text("[", DARK_GRAY), text("Modrinth", AQUA), text("]", DARK_GRAY))
+        .clickEvent(ClickEvent.openUrl(update.url()))
+        .hoverEvent(Messages.MISC_TEXT_UPDATE_DOWNLOAD.styled(GREEN))
+        .build()
+    ));
   }
 
   public void resetUptime() {

@@ -53,6 +53,7 @@ public final class ForgePermissions {
   public void gather(final PermissionGatherEvent.Nodes event) {
     final Set<String> permissions = new LinkedHashSet<>();
     permissions.add(Constants.PERMISSION_COMMAND_ERROR_HOVER_STACKTRACE);
+    permissions.add(Constants.PERMISSION_UPDATE_NOTIFY);
     for (final Command<Commander> command : this.platform.commandManager().commands()) {
       permissions.add(command.commandPermission().permissionString());
     }

@@ -59,7 +59,6 @@ import xyz.jpenilla.tabtps.common.service.UserService;
 import xyz.jpenilla.tabtps.common.util.ConsoleAudience;
 import xyz.jpenilla.tabtps.common.util.Constants;
 import xyz.jpenilla.tabtps.common.util.TranslatableProvider;
-import xyz.jpenilla.tabtps.common.util.UpdateChecker;
 import xyz.jpenilla.tabtps.forge.adventure.ForgeAudiences;
 import xyz.jpenilla.tabtps.forge.command.ForgeCommandManager;
 import xyz.jpenilla.tabtps.forge.command.ForgeConsoleCommander;
@@ -132,7 +131,7 @@ public final class TabTPSForge implements TabTPSPlatform<ServerPlayer, ForgeUser
     this.tickTimeService = new ForgeTickTimeService(server);
     this.tabTPS.resetUptime();
     if (this.tabTPS.configManager().pluginSettings().updateChecker()) {
-      CompletableFuture.runAsync(() -> UpdateChecker.checkVersion(Constants.TABTPS_VERSION, "forge", SharedConstants.getCurrentVersion().getName()).forEach(this.logger::info));
+      CompletableFuture.runAsync(() -> this.tabTPS.checkForUpdates(Constants.TABTPS_VERSION, "forge", SharedConstants.getCurrentVersion().getName()));
     }
   }
 

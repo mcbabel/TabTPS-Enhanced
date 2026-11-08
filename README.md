@@ -162,7 +162,7 @@ The plugin sends anonymous usage statistics to [bStats](https://bstats.org). Ser
 
 ### Update checker
 
-On startup TabTPS asks Modrinth whether a newer version exists for your platform and Minecraft version, and only then prints a hint. Turn it off with `update-checker=false` in `main.conf`.
+On startup TabTPS asks Modrinth once whether a newer version exists for your platform and Minecraft version. If there is one, it prints a hint in the console, and players with the `tabtps.updatenotify` permission (operators by default) get a short chat message with a download link when they join. `update-notify-on-join=false` in `main.conf` turns off the chat message, `update-checker=false` turns off the whole check.
 
 ## Building
 

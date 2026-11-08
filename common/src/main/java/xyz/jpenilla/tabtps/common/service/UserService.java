@@ -194,6 +194,7 @@ public abstract class UserService<P, U extends User<P>> {
         }
       });
     });
+    this.platform.tabTPS().notifyAboutUpdate(user);
   }
 
   public final void handleQuit(final P platformPlayer) {
