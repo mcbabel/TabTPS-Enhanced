@@ -56,7 +56,7 @@ tasks {
     val replacements = mapOf(
       "version" to version.toString(),
       "description" to project.description,
-      "github" to "https://github.com/MCbabel/TabTPS-Folia"
+      "github" to "https://github.com/MCbabel/TabTPS-Enhanced"
     )
     inputs.properties(replacements)
     filesMatching("plugin.yml") {

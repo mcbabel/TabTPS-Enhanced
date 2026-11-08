@@ -1,13 +1,13 @@
 modLoader="javafml"
 loaderVersion="[66,)"
 license="MIT"
-issueTrackerURL="https://github.com/MCbabel/TabTPS-Folia/issues"
+issueTrackerURL="https://github.com/MCbabel/TabTPS-Enhanced/issues"
 
 [[mods]]
 modId="tabtps"
 version="${version}"
 displayName="TabTPS Enhanced"
-displayURL="https://modrinth.com/plugin/tabtps-folia"
+displayURL="https://modrinth.com/project/6n5IVh64"
 logoFile="tabtps.png"
 authors="MCbabel, jmp"
 description='''${description}'''

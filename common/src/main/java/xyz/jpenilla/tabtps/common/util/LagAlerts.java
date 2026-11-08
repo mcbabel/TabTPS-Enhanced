@@ -181,7 +181,7 @@ public final class LagAlerts {
       connection.setConnectTimeout(10000);
       connection.setReadTimeout(10000);
       connection.setRequestProperty("Content-Type", "application/json");
-      connection.setRequestProperty("User-Agent", "MCbabel/TabTPS-Folia/" + Constants.TABTPS_VERSION);
+      connection.setRequestProperty("User-Agent", "MCbabel/TabTPS-Enhanced/" + Constants.TABTPS_VERSION);
       try (OutputStream out = connection.getOutputStream()) {
         out.write(bytes);
       }

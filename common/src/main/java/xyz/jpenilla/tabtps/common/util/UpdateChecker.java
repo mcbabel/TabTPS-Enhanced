@@ -44,7 +44,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 public final class UpdateChecker {
   private static final JsonParser parser = new JsonParser();
-  private static final String PROJECT = "tabtps-folia";
+  private static final String PROJECT = "6n5IVh64";
 
   private UpdateChecker() {
   }
@@ -54,7 +54,7 @@ public final class UpdateChecker {
     try {
       final String query = "loaders=" + encode("[\"" + loader + "\"]") + "&game_versions=" + encode("[\"" + minecraftVersion + "\"]");
       final URLConnection connection = new URL("https://api.modrinth.com/v2/project/" + PROJECT + "/version?" + query).openConnection();
-      connection.setRequestProperty("User-Agent", "MCbabel/TabTPS-Folia/" + version);
+      connection.setRequestProperty("User-Agent", "MCbabel/TabTPS-Enhanced/" + version);
       connection.setConnectTimeout(10000);
       connection.setReadTimeout(10000);
       try (Reader reader = new InputStreamReader(connection.getInputStream(), Charsets.UTF_8)) {
@@ -83,7 +83,7 @@ public final class UpdateChecker {
       return new Result(Collections.emptyList(), null);
     }
 
-    final Update update = new Update(version, newer.iterator().next(), "https://modrinth.com/plugin/" + PROJECT + "/version/" + latestId);
+    final Update update = new Update(version, newer.iterator().next(), "https://modrinth.com/project/" + PROJECT + "/version/" + latestId);
     final List<String> list = new ArrayList<>();
     list.add("There is an update available for TabTPS!");
     list.add("This server is running v" + version + ", the latest version for Minecraft " + minecraftVersion + " is v" + update.latest() + " (" + newer.size() + " " + (newer.size() == 1 ? "version" : "versions") + " behind).");

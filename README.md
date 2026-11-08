@@ -2,9 +2,9 @@
 
 <p align="center">
   <a href="https://modrinth.com/plugin/tabtps-folia"><img src="https://img.shields.io/modrinth/dt/tabtps-folia?logo=modrinth&label=Downloads&color=0B3D2E" alt="Modrinth downloads"></a>
-  <a href="https://github.com/MCbabel/TabTPS-Folia/releases/latest"><img src="https://img.shields.io/github/v/release/MCbabel/TabTPS-Folia?logo=github&label=Release&color=0B3D2E" alt="Latest release"></a>
-  <a href="https://deepwiki.com/MCbabel/TabTPS-Folia"><img src="https://img.shields.io/badge/Ask-DeepWiki-0B3D2E?logo=data:image%2Fpng;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAPoAAAD6AG1e1JrAAACIUlEQVRYw%2B2XP2gUQRTGv7d3JhYWQawkIBaCVWzETos0gmAnVoKNTSoLK0E7EQQrC20sBVFBtLPQRgTBtBaKjYgIQUSxiJq7fT%2BLvCGPJZdNLt4dQj5Y3u7sznzfzLw%2Fs9IO%2FicANiniCujEfWdsQgBLxAbsbraPZcmBfcAt4DNwKQsZNfEUsAB8YRV12LfA6ZHuedg7AO7ed%2Fc%2BUBcbQhbiu%2B6wXIM6EnZWkszMJe2Ke0n6I2la0v51hFeSMLN6OwIK6jJwEBdUYb2MAxRSz6sY4geiahFgLe1Hwq6YWe3us8AN4FQQU4QM64SPY69Xyr43fADgNjAPXHb3peSsD4FDQ0VLEjAHvIhBPS6AHvA1bBO9JPAXcHFbIRtJ5yzwIQZ9CZwAusDJENIkLqsG8DpNyIZJwSUk9wLHgakcesC1JCCjiHm1kYDNOEjptCxpSVK%2F8f73OFLxPLAYM3oCzEX7MXf%2FlJbc%2F8kWpA4HgQdpYI9IWAbeh83whi84cHXL%2B58EPBoQhnmm94EzwE3gZ2p%2FDhzdbhg%2BTaRr01x7ftb4%2FjBwFzjXrCvDpmLW9crVLNeR9CaapoGemb2TdCERW1tNaBNQ8jktwmozqwtpqRNtdWAjARYk39IS12ZWRX7vmJmA71nQZgi36gN7gCvAj5xc3P0jcH7kx7Ik5IC73wsh14GZsZySow5002l4Jr0b6%2Bm4eSyvpAn8lEzsx2QHo8RfUrlN%2BuPq4ksAAAAASUVORK5CYII%3D" alt="Ask DeepWiki"></a>
-  <a href="license.txt"><img src="https://img.shields.io/github/license/MCbabel/TabTPS-Folia?label=License&color=0B3D2E" alt="MIT license"></a>
+  <a href="https://github.com/MCbabel/TabTPS-Enhanced/releases/latest"><img src="https://img.shields.io/github/v/release/MCbabel/TabTPS-Enhanced?logo=github&label=Release&color=0B3D2E" alt="Latest release"></a>
+  <a href="https://deepwiki.com/MCbabel/TabTPS-Enhanced"><img src="https://img.shields.io/badge/Ask-DeepWiki-0B3D2E?logo=data:image%2Fpng;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAPoAAAD6AG1e1JrAAACIUlEQVRYw%2B2XP2gUQRTGv7d3JhYWQawkIBaCVWzETos0gmAnVoKNTSoLK0E7EQQrC20sBVFBtLPQRgTBtBaKjYgIQUSxiJq7fT%2BLvCGPJZdNLt4dQj5Y3u7sznzfzLw%2Fs9IO%2FicANiniCujEfWdsQgBLxAbsbraPZcmBfcAt4DNwKQsZNfEUsAB8YRV12LfA6ZHuedg7AO7ed%2Fc%2BUBcbQhbiu%2B6wXIM6EnZWkszMJe2Ke0n6I2la0v51hFeSMLN6OwIK6jJwEBdUYb2MAxRSz6sY4geiahFgLe1Hwq6YWe3us8AN4FQQU4QM64SPY69Xyr43fADgNjAPXHb3peSsD4FDQ0VLEjAHvIhBPS6AHvA1bBO9JPAXcHFbIRtJ5yzwIQZ9CZwAusDJENIkLqsG8DpNyIZJwSUk9wLHgakcesC1JCCjiHm1kYDNOEjptCxpSVK%2F8f73OFLxPLAYM3oCzEX7MXf%2FlJbc%2F8kWpA4HgQdpYI9IWAbeh83whi84cHXL%2B58EPBoQhnmm94EzwE3gZ2p%2FDhzdbhg%2BTaRr01x7ftb4%2FjBwFzjXrCvDpmLW9crVLNeR9CaapoGemb2TdCERW1tNaBNQ8jktwmozqwtpqRNtdWAjARYk39IS12ZWRX7vmJmA71nQZgi36gN7gCvAj5xc3P0jcH7kx7Ik5IC73wsh14GZsZySow5002l4Jr0b6%2Bm4eSyvpAn8lEzsx2QHo8RfUrlN%2BuPq4ksAAAAASUVORK5CYII%3D" alt="Ask DeepWiki"></a>
+  <a href="license.txt"><img src="https://img.shields.io/github/license/MCbabel/TabTPS-Enhanced?label=License&color=0B3D2E" alt="MIT license"></a>
 </p>
 
 ![TabTPS showing TPS and MSPT in the boss bar, action bar and tab list while a server lags and recovers](assets/media/showcase.gif)
@@ -13,7 +13,7 @@ Shows TPS, MSPT and other server stats in the tab list, action bar and boss bar.
 
 TabTPS Enhanced (formerly TabTPS Folia) started as a Folia fork of [TabTPS by jpenilla](https://github.com/jpenilla/TabTPS). Since 1.2.0 it also runs on Canvas, Paper, Purpur, Leaf and Spigot, and since 1.3.0 as a Forge mod.
 
-Download: [Modrinth](https://modrinth.com/plugin/tabtps-folia) or [GitHub releases](https://github.com/MCbabel/TabTPS-Folia/releases)
+Download: [Modrinth](https://modrinth.com/plugin/tabtps-folia) or [GitHub releases](https://github.com/MCbabel/TabTPS-Enhanced/releases)
 
 Website and documentation: [tabtps.mcbabel.de](https://tabtps.mcbabel.de/) ([docs](https://tabtps.mcbabel.de/docs))
 
