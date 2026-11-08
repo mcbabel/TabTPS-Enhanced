@@ -10,7 +10,7 @@ on:
         required: true
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   modrinth:
@@ -47,6 +47,30 @@ jobs:
             echo "gradle.properties version $version does not match tag $TAG"
             exit 1
           fi
+
+      - name: Build
+        run: ./gradlew build --console=plain
+
+      - name: Attach jars to release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version=$(grep '^version=' gradle.properties | cut -d= -f2)
+          existing=$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name')
+          for jar in \
+            "folia/build/libs/tabtps-folia-$version.jar" \
+            "forge/26.3/build/libs/tabtps-forge-mc26.3-$version.jar" \
+            "forge/1.20.1/build/libs/tabtps-forge-mc1.20.1-$version.jar"; do
+            if [ ! -f "$jar" ]; then
+              echo "$jar was not built"
+              exit 1
+            fi
+            if grep -qxF "$(basename "$jar")" <<< "$existing"; then
+              echo "$(basename "$jar") is already attached, skipping"
+              continue
+            fi
+            gh release upload "$TAG" "$jar" --repo "$GITHUB_REPOSITORY"
+          done
 
       - name: Publish
         env:
