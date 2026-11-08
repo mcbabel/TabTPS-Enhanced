@@ -135,6 +135,18 @@ lag-alerts {
 
 ![lag alert in chat](assets/media/lag-alert.png)
 
+### Settings menu
+
+`/tabtps gui` opens a menu that changes the settings right in the game: the displays with their modules, theme and custom text, the lag alerts, the general options and your own displays. Everything is written to the config files and reloaded right away. Permission `tabtps.gui` (operators by default).
+
+On Minecraft 1.21.6 and newer it uses Minecraft's dialog screens, on older versions a chest menu. The same goes for the Forge mod: dialogs on 26.3, a chest menu on 1.20.1. `gui-style` in `main.conf` can force one of them (`auto`, `dialog` or `chest`). Text values like the Discord webhook are typed in a text field in the dialog, or in chat when using the chest menu.
+
+![Changing modules and lag alerts in the settings menu](assets/media/gui.gif)
+
+| Dialog (1.21.6+) | Chest menu |
+|---|---|
+| ![settings dialog](assets/media/gui-dialog.png) | ![settings chest menu](assets/media/gui-chest.png) |
+
 ### PlaceholderAPI
 
 If [PlaceholderAPI](https://modrinth.com/plugin/placeholderapi) is installed, TabTPS registers these placeholders by itself (plugin only, not Forge):
@@ -192,6 +204,11 @@ If [MiniPlaceholders](https://modrinth.com/plugin/miniplaceholders) 2.x or 3.x i
 * Permission required: ``tabtps.regions``
 * ![regions command](assets/media/regions.png)
 
+#### Settings menu command
+* Command: ``/tabtps gui``
+* Opens the settings menu, see [Settings menu](#settings-menu)
+* Permission required: ``tabtps.gui``, reloading from the menu also needs ``tabtps.reload``
+
 #### Reload command
 * Command: ``/tabtps reload``
 * Permission required: ``tabtps.reload``
@@ -215,6 +232,8 @@ The built JAR will be at `folia/build/libs/tabtps-folia-*.jar`.
 The Forge mods build with `./gradlew :tabtps-forge-26-3:build` and `./gradlew :tabtps-forge-1-20-1:build` and end up in `forge/<version>/build/libs/tabtps-forge-mc<version>-*.jar`. For 1.20.1 that jar is renamed to Forge's runtime (SRG) names; the `-mojmap` jar next to it is only for Forge's development client.
 
 The Velocity plugin builds with `./gradlew :tabtps-velocity:build` into `velocity/build/libs/tabtps-velocity-*.jar`. It does not depend on the other modules; the backend plugin and the proxy only share the `tabtps:stats` plugin message format: a protocol byte (1), TPS and MSPT as doubles, online and maximum players as ints, the number of regions as int and the lowest region TPS as double (both -1 without regions), the uptime in seconds as long and the server software as a UTF string.
+
+The settings menu is built once in `common` and handed to the platform either as dialog JSON or as an abstract chest menu. Folia does not register the vanilla `/dialog` command, so on Paper and Folia the plugin parses the dialog with Minecraft's own codec and sends the show-dialog packet through reflection; on Spigot it falls back to `/dialog show`. Saving goes through `/tabtps gui apply`, filled in by the dialog's `dynamic/run_command` action, because a registered command passes the client's check for commands sent from dialogs without a confirmation screen.
 
 MiniPlaceholders works with the server's own Adventure classes, while the plugin ships a relocated copy of Adventure. The hook therefore goes through reflection and a proxy for MiniPlaceholders' resolver interface, and hands the values over as MiniMessage text.
 

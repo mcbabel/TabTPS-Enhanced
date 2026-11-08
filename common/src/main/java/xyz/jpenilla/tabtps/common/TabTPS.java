@@ -36,6 +36,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import xyz.jpenilla.tabtps.common.command.Commands;
 import xyz.jpenilla.tabtps.common.command.TabTPSCommand;
 import xyz.jpenilla.tabtps.common.command.commands.AboutCommand;
+import xyz.jpenilla.tabtps.common.command.commands.GuiCommand;
 import xyz.jpenilla.tabtps.common.command.commands.HelpCommand;
 import xyz.jpenilla.tabtps.common.command.commands.MemoryCommand;
 import xyz.jpenilla.tabtps.common.command.commands.MobCapsCommand;
@@ -119,7 +120,8 @@ public final class TabTPS {
       new AboutCommand(this, this.commands),
       new PingCommand(this, this.commands),
       new MemoryCommand(this, this.commands),
-      new MobCapsCommand(this, this.commands)
+      new MobCapsCommand(this, this.commands),
+      new GuiCommand(this, this.commands)
     ).forEach(TabTPSCommand::register);
     final RegionStatsService regionStats = this.platform.regionStatsService();
     if (regionStats != null) {

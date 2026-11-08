@@ -25,6 +25,8 @@
 package xyz.jpenilla.tabtps.folia;
 
 import java.nio.file.Path;
+import java.util.Locale;
+import java.util.function.Consumer;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -47,6 +49,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xyz.jpenilla.tabtps.common.TabTPS;
 import xyz.jpenilla.tabtps.common.TabTPSPlatform;
+import xyz.jpenilla.tabtps.common.User;
+import xyz.jpenilla.tabtps.common.gui.Menu;
 import xyz.jpenilla.tabtps.common.command.Commander;
 import xyz.jpenilla.tabtps.common.command.DelegateUser;
 import xyz.jpenilla.tabtps.common.command.commands.TickInfoCommand;
@@ -55,6 +59,7 @@ import xyz.jpenilla.tabtps.common.service.RegionStatsService;
 import xyz.jpenilla.tabtps.common.service.TickTimeService;
 import xyz.jpenilla.tabtps.common.service.UserService;
 import xyz.jpenilla.tabtps.folia.command.FoliaConsoleCommander;
+import xyz.jpenilla.tabtps.folia.gui.BukkitGui;
 import xyz.jpenilla.tabtps.folia.command.FoliaPingCommand;
 import xyz.jpenilla.tabtps.folia.command.FoliaTickInfoCommandFormatter;
 import xyz.jpenilla.tabtps.folia.placeholder.MiniPlaceholdersHook;
@@ -79,12 +84,14 @@ public final class TabTPSFolia extends JavaPlugin implements TabTPSPlatform<Play
   private Logger logger;
   private BukkitAudiences audiences;
   private @Nullable MiniPlaceholdersHook miniPlaceholders;
+  private BukkitGui gui;
 
   @Override
   public void onEnable() {
     this.logger = LoggerFactory.getLogger(this.getLogger().getName());
     this.audiences = BukkitAudiences.create(this);
     this.setupTickServices();
+    this.gui = new BukkitGui(this, regionizedServer(), minecraftVersion());
 
     this.setupCommandManager();
     this.userService = new FoliaUserService(this);
@@ -93,6 +100,7 @@ public final class TabTPSFolia extends JavaPlugin implements TabTPSPlatform<Play
     this.registerCommands();
 
     this.getServer().getPluginManager().registerEvents(new FoliaJoinQuitListener(this), this);
+    this.getServer().getPluginManager().registerEvents(this.gui, this);
     this.getServer().getOnlinePlayers().forEach(this.userService::handleJoin);
 
     this.metrics = new Metrics(this, BSTATS_PLUGIN_ID);
@@ -269,6 +277,41 @@ public final class TabTPSFolia extends JavaPlugin implements TabTPSPlatform<Play
   @Override
   public @Nullable MobCapService mobCapService() {
     return this.mobCapService;
+  }
+
+  @Override
+  public boolean dialogsSupported() {
+    return this.gui.dialogsSupported();
+  }
+
+  @Override
+  public void showDialog(final @NonNull User<?> user, final @NonNull String dialog) {
+    this.gui.showDialog(user, dialog);
+  }
+
+  @Override
+  public boolean menusSupported() {
+    return true;
+  }
+
+  @Override
+  public void openMenu(final @NonNull User<?> user, final @NonNull Menu menu) {
+    this.gui.open(user, menu);
+  }
+
+  @Override
+  public void closeMenu(final @NonNull User<?> user) {
+    this.gui.close(user);
+  }
+
+  @Override
+  public void promptChat(final @NonNull User<?> user, final @NonNull Consumer<String> input) {
+    this.gui.prompt(user, input);
+  }
+
+  @Override
+  public @NonNull Locale locale(final @NonNull User<?> user) {
+    return user.base() instanceof Player ? BukkitGui.locale((Player) user.base()) : Locale.US;
   }
 
   @Override

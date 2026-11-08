@@ -91,7 +91,7 @@ public final class LagAlerts {
       if (this.alerting) {
         this.alerting = false;
         if (settings.notifyRecovery()) {
-          this.send(Messages.MISC_LAG_ALERT_RECOVERED.styled(GRAY, tps(sample.tps), mspt(sample.mspt)), settings);
+          this.send(Messages.MISC_LAG_ALERT_RECOVERED.styled(GRAY, tps(sample.tps), mspt(sample.mspt)), settings, false);
         }
       }
       return;
@@ -116,7 +116,7 @@ public final class LagAlerts {
       message = message.append(space()).append(Messages.MISC_LAG_ALERT_REGION.styled(GRAY,
         text(region.world() + " " + region.blockX() + ", " + region.blockZ(), WHITE)));
     }
-    this.send(message, settings);
+    this.send(message, settings, true);
   }
 
   private @NonNull Sample sample() {
@@ -141,7 +141,7 @@ public final class LagAlerts {
     return new Sample(ticks.displayTps(), ticks.averageMspt(), null);
   }
 
-  private void send(final @NonNull Component message, final PluginSettings.@NonNull LagAlerts settings) {
+  private void send(final @NonNull Component message, final PluginSettings.@NonNull LagAlerts settings, final boolean alert) {
     final Component prefixed = Components.ofChildren(Constants.PREFIX, space(), message);
     for (final User<?> user : this.tabTPS.platform().userService().onlineUsers()) {
       if (user.online() && user.hasPermission(Constants.PERMISSION_LAG_ALERT)) {
@@ -152,14 +152,24 @@ public final class LagAlerts {
     this.tabTPS.platform().logger().warn(plain);
     final String webhook = settings.discordWebhook();
     if (!webhook.isEmpty()) {
-      this.tabTPS.executor().execute(() -> this.postToDiscord(webhook, plain));
+      if (DiscordWebhooks.valid(webhook)) {
+        this.tabTPS.executor().execute(() -> this.postToDiscord(webhook, plain, alert));
+      } else {
+        this.tabTPS.platform().logger().warn("Ignoring discord-webhook in main.conf, it is not a Discord webhook URL (https://discord.com/api/webhooks/...)");
+      }
     }
   }
 
-  private void postToDiscord(final @NonNull String webhook, final @NonNull String content) {
+  private void postToDiscord(final @NonNull String webhook, final @NonNull String content, final boolean alert) {
     final JsonObject body = new JsonObject();
     body.addProperty("username", "TabTPS");
-    body.addProperty("content", content);
+    final JsonObject embed = new JsonObject();
+    embed.addProperty("title", plain(alert ? Messages.MISC_LAG_ALERT_TITLE.plain() : Messages.MISC_LAG_ALERT_TITLE_RECOVERED.plain()));
+    embed.addProperty("description", content);
+    embed.addProperty("color", alert ? 0xEF4444 : 0x22C55E);
+    final JsonArray embeds = new JsonArray();
+    embeds.add(embed);
+    body.add("embeds", embeds);
     final JsonObject mentions = new JsonObject();
     mentions.add("parse", new JsonArray());
     body.add("allowed_mentions", mentions);

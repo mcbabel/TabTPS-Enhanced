@@ -26,6 +26,7 @@ package xyz.jpenilla.tabtps.common.config;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.Locale;
 import java.util.Set;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
@@ -89,6 +90,14 @@ public final class PluginSettings {
 
   public boolean sendStatsToProxy() {
     return this.sendStatsToProxy;
+  }
+
+  @Comment("Which settings menu /tabtps gui opens: auto, dialog or chest\n"
+    + "auto uses the dialog screens of Minecraft 1.21.6 and newer where the server supports them, and a chest menu otherwise")
+  private String guiStyle = "auto";
+
+  public @NonNull String guiStyle() {
+    return this.guiStyle == null ? "auto" : this.guiStyle.trim().toLowerCase(Locale.ROOT);
   }
 
   public @NonNull HelpColors helpColors() {

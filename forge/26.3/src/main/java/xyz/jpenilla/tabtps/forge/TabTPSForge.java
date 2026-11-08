@@ -24,6 +24,11 @@
  */
 package xyz.jpenilla.tabtps.forge;
 
+import xyz.jpenilla.tabtps.forge.gui.ForgeGui;
+import xyz.jpenilla.tabtps.common.gui.Menu;
+import xyz.jpenilla.tabtps.common.User;
+import java.util.function.Consumer;
+import java.util.Locale;
 import java.nio.file.Path;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -76,6 +81,7 @@ public final class TabTPSForge implements TabTPSPlatform<ServerPlayer, ForgeUser
   private final ForgeAudiences audiences = new ForgeAudiences(this::server);
   private final ForgePermissions permissions = new ForgePermissions(this);
   private final ForgeMobCapService mobCapService = new ForgeMobCapService();
+  private final ForgeGui gui = new ForgeGui(this);
   private final ForgeUserService userService;
   private final ForgeCommandManager commandManager;
   private final TabTPS tabTPS;
@@ -220,6 +226,41 @@ public final class TabTPSForge implements TabTPSPlatform<ServerPlayer, ForgeUser
   @Override
   public @NonNull TickTimeService tickTimeService() {
     return this.tickTimeService;
+  }
+
+  @Override
+  public boolean dialogsSupported() {
+    return true;
+  }
+
+  @Override
+  public void showDialog(final @NonNull User<?> user, final @NonNull String dialog) {
+    this.gui.showDialog(user, dialog);
+  }
+
+  @Override
+  public boolean menusSupported() {
+    return true;
+  }
+
+  @Override
+  public void openMenu(final @NonNull User<?> user, final @NonNull Menu menu) {
+    this.gui.open(user, menu);
+  }
+
+  @Override
+  public void closeMenu(final @NonNull User<?> user) {
+    this.gui.close(user);
+  }
+
+  @Override
+  public void promptChat(final @NonNull User<?> user, final @NonNull Consumer<String> input) {
+    this.gui.prompt(user, input);
+  }
+
+  @Override
+  public @NonNull Locale locale(final @NonNull User<?> user) {
+    return user.base() instanceof ServerPlayer ? ForgeGui.locale((ServerPlayer) user.base()) : Locale.US;
   }
 
   @Override

@@ -26,6 +26,7 @@ package xyz.jpenilla.tabtps.common.config;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -46,6 +47,7 @@ public final class ConfigManager {
   private final Path displayConfigsPath;
   private final Map<DisplayConfig, ConfigLoader<DisplayConfig>> displayConfigs = new HashMap<>();
   private final Map<String, DisplayConfig> displayConfigsByPermission = new HashMap<>();
+  private final Map<String, Path> displayConfigPaths = new HashMap<>();
 
   private final Path themePath;
   private final Map<Theme, ConfigLoader<Theme>> themes = new HashMap<>();
@@ -94,6 +96,7 @@ public final class ConfigManager {
     try {
       this.displayConfigs.clear();
       this.displayConfigsByPermission.clear();
+      this.displayConfigPaths.clear();
       final List<Path> existingFiles = Files.list(this.displayConfigsPath).collect(Collectors.toList());
       final List<Path> paths = existingFiles.size() != 0 ? existingFiles : Collections.singletonList(this.displayConfigsPath.resolve("default.conf"));
       final Set<String> usedPermissions = new HashSet<>();
@@ -120,6 +123,7 @@ public final class ConfigManager {
           usedPermissions.add(config.permission());
           this.displayConfigs.put(config, loader);
           this.displayConfigsByPermission.put(config.permission(), config);
+          this.displayConfigPaths.put(config.permission(), path);
         }
       }
     } catch (final IOException e) {
@@ -167,6 +171,20 @@ public final class ConfigManager {
 
   public @NonNull Map<String, DisplayConfig> displayConfigsByPermission() {
     return this.displayConfigsByPermission;
+  }
+
+  public @NonNull Path mainConfigPath() {
+    return this.dataDirectory.resolve("main.conf");
+  }
+
+  public @NonNull Map<String, Path> displayConfigPaths() {
+    return Collections.unmodifiableMap(this.displayConfigPaths);
+  }
+
+  public @NonNull List<String> themeNames() {
+    final List<String> names = new ArrayList<>(this.themesByName.keySet());
+    Collections.sort(names);
+    return names;
   }
 
   private static void tryCreateDirectoryIfNeeded(final @NonNull Path directory) {

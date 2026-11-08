@@ -24,11 +24,14 @@
 package xyz.jpenilla.tabtps.common;
 
 import java.nio.file.Path;
+import java.util.Locale;
+import java.util.function.Consumer;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.incendo.cloud.CommandManager;
 import org.slf4j.Logger;
 import xyz.jpenilla.tabtps.common.command.Commander;
+import xyz.jpenilla.tabtps.common.gui.Menu;
 import xyz.jpenilla.tabtps.common.service.MobCapService;
 import xyz.jpenilla.tabtps.common.service.RegionStatsService;
 import xyz.jpenilla.tabtps.common.service.TickTimeService;
@@ -60,6 +63,30 @@ public interface TabTPSPlatform<P, U extends User<P>> {
   @NonNull Logger logger();
 
   @NonNull CommandManager<Commander> commandManager();
+
+  default boolean dialogsSupported() {
+    return false;
+  }
+
+  default void showDialog(final @NonNull User<?> user, final @NonNull String dialog) {
+  }
+
+  default boolean menusSupported() {
+    return false;
+  }
+
+  default void openMenu(final @NonNull User<?> user, final @NonNull Menu menu) {
+  }
+
+  default void closeMenu(final @NonNull User<?> user) {
+  }
+
+  default void promptChat(final @NonNull User<?> user, final @NonNull Consumer<String> input) {
+  }
+
+  default @NonNull Locale locale(final @NonNull User<?> user) {
+    return Locale.US;
+  }
 
   default Throwable asComponentMessageThrowable(final Throwable thr) {
     return thr;
