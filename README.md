@@ -236,7 +236,7 @@ On startup TabTPS asks Modrinth once whether a newer version exists for your pla
 ./gradlew :tabtps-folia:shadowJar
 ```
 
-The built JAR will be at `folia/build/libs/tabtps-folia-*.jar`.
+The built JAR will be at `folia/build/libs/tabtps-enhanced-*.jar`.
 
 The Forge mods build with `./gradlew :tabtps-forge-26-3:build` and `./gradlew :tabtps-forge-1-20-1:build` and end up in `forge/<version>/build/libs/tabtps-forge-mc<version>-*.jar`. For 1.20.1 that jar is renamed to Forge's runtime (SRG) names; the `-mojmap` jar next to it is only for Forge's development client.
 

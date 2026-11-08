@@ -67,7 +67,7 @@ run() {
     jar=$(newest_jar "../velocity/build/libs/tabtps-velocity-*.jar")
     folder=plugins
   else
-    jar=$(newest_jar "../folia/build/libs/tabtps-folia-*.jar")
+    jar=$(newest_jar "../folia/build/libs/tabtps-enhanced-*.jar")
     folder=plugins
   fi
   if [ -z "$jar" ]; then

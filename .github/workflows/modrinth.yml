@@ -58,7 +58,7 @@ jobs:
           version=$(grep '^version=' gradle.properties | cut -d= -f2)
           existing=$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name')
           for jar in \
-            "folia/build/libs/tabtps-folia-$version.jar" \
+            "folia/build/libs/tabtps-enhanced-$version.jar" \
             "forge/26.3/build/libs/tabtps-forge-mc26.3-$version.jar" \
             "forge/1.20.1/build/libs/tabtps-forge-mc1.20.1-$version.jar" \
             "velocity/build/libs/tabtps-velocity-$version.jar"; do

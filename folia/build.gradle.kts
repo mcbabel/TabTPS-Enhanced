@@ -28,6 +28,10 @@ dependencies {
   implementation(libs.cloudPaper)
 }
 
+base {
+  archivesName.set("tabtps-enhanced")
+}
+
 tasks {
   jar {
     archiveClassifier.set("unshaded")
