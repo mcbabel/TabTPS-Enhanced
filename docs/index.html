@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TabTPS Enhanced</title>
+<meta name="description" content="TPS, MSPT and more in the tab list, action bar and boss bar. Per region on Folia. For Folia, Canvas, Paper, Purpur, Leaf, Spigot, Forge and Velocity.">
+<meta property="og:title" content="TabTPS Enhanced">
+<meta property="og:description" content="TPS, MSPT and more in the tab list, action bar and boss bar. Per region on Folia.">
+<meta property="og:image" content="media/logo-256.png">
+<link rel="icon" href="media/logo-128.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+
+<header class="topbar">
+  <nav class="nav wrap" aria-label="Main">
+    <a class="brand" href="#top"><img src="media/logo-128.png" alt=""><span>TabTPS Enhanced</span></a>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#platforms">Platforms</a></li>
+      <li><a href="#install">Install</a></li>
+      <li><a href="#faq">FAQ</a></li>
+      <li><a href="docs.html">Docs</a></li>
+      <li><a href="https://github.com/MCbabel/TabTPS-Folia">GitHub</a></li>
+      <li class="menu-only"><a href="https://modrinth.com/plugin/tabtps-folia">Download on Modrinth</a></li>
+    </ul>
+    <a class="nav-download" href="https://modrinth.com/plugin/tabtps-folia">Download</a>
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="nav-links">Menu</button>
+  </nav>
+</header>
+
+<div class="hero" id="top">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div class="hero-copy">
+        <div class="mark" aria-label="TabTPS Enhanced">
+          <span class="mark-card">TabTPS</span>
+          <span class="mark-pill">
+            <svg viewBox="0 0 32 32" aria-hidden="true"><path fill="#69DB7C" d="M16 1C17.6 9.6 20.6 12.6 30 15 20.6 17.4 17.6 20.4 16 29 14.4 20.4 11.4 17.4 2 15 11.4 12.6 14.4 9.6 16 1Z"/></svg>
+            ENHANCED
+          </span>
+        </div>
+        <h1>See how your server runs, right in the game.</h1>
+        <p class="lead">TabTPS shows TPS, MSPT and more in the tab list, action bar and boss bar. On Folia every player sees the region they are standing in.</p>
+        <div class="actions">
+          <a class="button primary" href="https://modrinth.com/plugin/tabtps-folia">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 3a1 1 0 0 1 1 1v9.59l3.3-3.3a1 1 0 1 1 1.4 1.42l-5 5a1 1 0 0 1-1.4 0l-5-5a1 1 0 0 1 1.4-1.42l3.3 3.3V4a1 1 0 0 1 1-1ZM5 19h14a1 1 0 1 1 0 2H5a1 1 0 1 1 0-2Z"/></svg>
+            Download on Modrinth
+          </a>
+          <a class="button secondary" href="https://github.com/MCbabel/TabTPS-Folia">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.46-1.16-1.11-1.47-1.11-1.47-.9-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.89 1.53 2.34 1.09 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.65 0 0 .84-.27 2.75 1.02a9.5 9.5 0 0 1 5 0c1.91-1.29 2.75-1.02 2.75-1.02.55 1.38.2 2.4.1 2.65.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85v2.74c0 .27.18.58.69.48A10 10 0 0 0 12 2Z"/></svg>
+            Source on GitHub
+          </a>
+        </div>
+      </div>
+      <div class="screen">
+        <img src="media/showcase.gif" width="960" height="540" alt="The boss bar, action bar and tab list showing TPS and MSPT while a server lags and recovers">
+      </div>
+    </div>
+  </div>
+
+  <svg class="bands" viewBox="0 0 1440 132" preserveAspectRatio="none" aria-hidden="true">
+    <defs>
+      <filter id="lift" x="-5%" y="-40%" width="110%" height="180%">
+        <feDropShadow dx="0" dy="-5" stdDeviation="6" flood-color="#0B3D2E" flood-opacity="0.25"/>
+      </filter>
+    </defs>
+    <path filter="url(#lift)" fill="#FFD43B" d="M0 24H1080Q1094 24 1094 10V14Q1094 0 1108 0H1440V132H0Z"/>
+    <path filter="url(#lift)" fill="#FF9F43" d="M0 50H820Q834 50 834 36V40Q834 26 848 26H1440V132H0Z"/>
+    <path filter="url(#lift)" fill="#FF6B6B" d="M0 76H560Q574 76 574 62V66Q574 52 588 52H1440V132H0Z"/>
+    <path filter="url(#lift)" fill="#EC4899" d="M0 102H300Q314 102 314 88V92Q314 78 328 78H1440V132H0Z"/>
+    <path filter="url(#lift)" fill="#3B82F6" d="M0 104H1440V132H0Z"/>
+  </svg>
+</div>
+
+<main>
+  <div class="intro wrap">
+    <p>One plugin for Folia, Canvas, Paper, Purpur, Leaf and Spigot from 1.20 to 26.3, <span>a Forge mod for 26.3 and 1.20.1, and a small Velocity plugin for your network.</span></p>
+  </div>
+
+  <section id="features" class="wrap" aria-label="Features">
+    <article class="feature">
+      <div class="copy">
+        <h2>Three places to look</h2>
+        <p>Show the numbers in the tab list, the action bar or a boss bar that fills up and turns yellow, then red, when the server struggles.</p>
+        <p>Pick the modules for each display, change the colors with themes or write your own text with MiniMessage. Every player can turn each display on or off.</p>
+      </div>
+      <div>
+        <img class="shot" src="media/tab-list.png" width="1431" height="165" alt="Tab list with TPS, MSPT, players, CPU, memory, ping and uptime" loading="lazy">
+        <img class="shot" src="media/boss-bar-lag.png" width="720" height="78" alt="Red boss bar while the server lags" loading="lazy">
+      </div>
+    </article>
+
+    <article class="feature flip">
+      <div class="copy">
+        <h2>Per region on Folia</h2>
+        <p>Folia ticks every region on its own. TabTPS shows each player the TPS and MSPT of the region they are in, and <code>/tabtps regions</code> lists the busiest regions with their chunks, players and entities.</p>
+        <p>Click a line to teleport to the middle of that region.</p>
+      </div>
+      <img class="shot" src="media/regions.png" width="990" height="207" alt="List of regions sorted by load, the first one at 100 percent with 9096 entities" loading="lazy">
+    </article>
+
+    <article class="feature">
+      <div class="copy">
+        <h2>Know about lag first</h2>
+        <p>Lag alerts tell you when TPS or MSPT stay bad for a while: in chat for operators, in the console and, if you like, in a Discord channel.</p>
+        <p>On Folia the alert names the busiest region, so you know where to look.</p>
+      </div>
+      <img class="shot" src="media/lag-alert.png" width="990" height="72" alt="Chat message: TPS has been below 18 for 4 seconds, busiest region world -9, 7" loading="lazy">
+    </article>
+
+    <article class="feature flip">
+      <div class="copy">
+        <h2>Settings without the config files</h2>
+        <p><code>/tabtps gui</code> opens a menu for the displays, modules, lag alerts and more. Changes are saved to the config right away.</p>
+        <p>On 1.21.6 and newer it uses Minecraft's dialog screens, on older versions a chest menu.</p>
+      </div>
+      <img class="shot" src="media/gui.gif" width="960" height="540" alt="Clicking through the settings menu: displays, header modules, lag alerts and saving" loading="lazy">
+    </article>
+
+    <article class="feature">
+      <div class="copy">
+        <h2>Your whole network</h2>
+        <p>With the Velocity plugin, <code>/networktps</code> shows TPS, MSPT and players of every server behind your proxy in one list.</p>
+      </div>
+      <img class="shot" src="media/network.png" width="990" height="213" alt="Network list with the lobby lagging in red and survival at 20 TPS" loading="lazy">
+    </article>
+
+    <article class="feature flip">
+      <div class="copy">
+        <h2>Answers on demand</h2>
+        <p><code>/tickinfo</code>, <code>/memory</code> and <code>/ping</code> give you the details when you need them. PlaceholderAPI and MiniPlaceholders get the same values for your other plugins.</p>
+      </div>
+      <img class="shot" src="media/commands.gif" width="960" height="540" alt="Typing /tickinfo, /tabtps regions and /memory in chat" loading="lazy">
+    </article>
+  </section>
+
+  <section id="platforms" class="platforms" aria-labelledby="platforms-title">
+    <div class="wrap">
+      <h2 id="platforms-title">Runs where you run</h2>
+      <p>The plugin is a single jar for every supported server. The Forge mod only has to be on the server, players join with a normal client.</p>
+      <div class="platform-list">
+        <div>
+          <h3>Plugin</h3>
+          <p class="meta">Minecraft 1.20 to 26.3, Java 17 or newer</p>
+          <ul><li>Folia</li><li>Canvas</li><li>Paper</li><li>Purpur</li><li>Leaf</li><li>Spigot</li></ul>
+        </div>
+        <div>
+          <h3>Forge mod</h3>
+          <p class="meta">Server side, also in singleplayer</p>
+          <ul><li>26.3</li><li>1.20.1</li></ul>
+        </div>
+        <div>
+          <h3>Proxy</h3>
+          <p class="meta">Network view for your servers</p>
+          <ul><li>Velocity</li></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="install" class="install" aria-labelledby="install-title">
+    <div class="wrap">
+      <h2 id="install-title">Set up in a minute</h2>
+      <p>Nothing to configure before the first start. Every extra feature stays off until you turn it on. The <a href="docs.html">documentation</a> covers every option.</p>
+      <ol class="steps">
+        <li>
+          <h3>Download</h3>
+          <p>Get the jar for your platform from <a href="https://modrinth.com/plugin/tabtps-folia">Modrinth</a>.</p>
+        </li>
+        <li>
+          <h3>Drop it in</h3>
+          <p>Put it into <code>plugins/</code>, or <code>mods/</code> on Forge, and restart the server.</p>
+        </li>
+        <li>
+          <h3>Turn it on</h3>
+          <p>Run <code>/tabtps toggle tab</code> for yourself, or <code>/tabtps gui</code> to set it up for everyone.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+  <section id="faq" class="faq-section" aria-labelledby="faq-title">
+    <div class="wrap faq-grid">
+      <div class="faq-intro">
+        <h2 id="faq-title">Common questions</h2>
+        <p>Quick answers to what comes up most. Everything else is in the <a href="docs.html">documentation</a>.</p>
+        <p class="faq-more">Still stuck? <a href="https://github.com/MCbabel/TabTPS-Folia/issues">Open an issue on GitHub</a>.</p>
+      </div>
+      <div class="faq-list">
+        <details class="faq">
+          <summary>I don't see any display after installing.</summary>
+          <p>Displays start turned off. Run <code>/tabtps toggle tab</code>, or set <code>enable-on-login=true</code> in your display config to turn them on for everyone who joins.</p>
+        </details>
+        <details class="faq">
+          <summary>/mspt shows something different than expected.</summary>
+          <p>On Paper-based servers <code>/mspt</code> belongs to Paper. Use <code>/tickinfo</code> for TabTPS' overview.</p>
+        </details>
+        <details class="faq">
+          <summary>/networktps shows no data for a server.</summary>
+          <p>Check that <code>send-stats-to-proxy=true</code> is set on that server and that at least one player is online there. Data travels through a player's connection. Forge servers do not send data yet.</p>
+        </details>
+        <details class="faq">
+          <summary>The Discord webhook doesn't send anything.</summary>
+          <p>Make sure the URL starts with <code>https://discord.com/api/webhooks/</code>. Other addresses are ignored, and the console says so.</p>
+        </details>
+        <details class="faq">
+          <summary>How do I turn off the update message?</summary>
+          <p>Set <code>update-notify-on-join=false</code> in <code>main.conf</code>, or <code>update-checker=false</code> to skip the check entirely.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <a class="brand" href="#top"><img src="media/logo-128.png" alt="">TabTPS Enhanced</a>
+      <p>MIT licensed. Based on <a href="https://github.com/jpenilla/TabTPS">TabTPS</a> by jpenilla.</p>
+    </div>
+    <nav aria-label="Links">
+      <a href="docs.html">Docs</a>
+      <a href="https://modrinth.com/plugin/tabtps-folia">Modrinth</a>
+      <a href="https://github.com/MCbabel/TabTPS-Folia">GitHub</a>
+      <a href="https://github.com/MCbabel/TabTPS-Folia/issues">Report a bug</a>
+    </nav>
+  </div>
+</footer>
+
+<dialog class="viewer" aria-label="Enlarged image">
+  <button class="close" type="button" aria-label="Close">&times;</button>
+  <div class="frame"><img alt=""></div>
+  <p></p>
+</dialog>
+
+<script src="site.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TabTPS Docs</title>
+<meta name="description" content="How to install, configure and use TabTPS Enhanced: displays, modules, lag alerts, the settings menu, commands, permissions and placeholders.">
+<link rel="icon" href="media/logo-128.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="site.css">
+</head>
+<body class="docs-page">
+
+<header class="topbar">
+  <nav class="nav wrap" aria-label="Main">
+    <a class="brand" href="index.html"><img src="media/logo-128.png" alt=""><span>TabTPS Enhanced</span></a>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="index.html#features">Features</a></li>
+      <li><a href="index.html#platforms">Platforms</a></li>
+      <li><a href="docs.html" aria-current="page">Docs</a></li>
+      <li><a href="https://github.com/MCbabel/TabTPS-Folia">GitHub</a></li>
+      <li class="menu-only"><a href="https://modrinth.com/plugin/tabtps-folia">Download on Modrinth</a></li>
+    </ul>
+    <a class="nav-download" href="https://modrinth.com/plugin/tabtps-folia">Download</a>
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="nav-links">Menu</button>
+  </nav>
+</header>
+
+<div class="doc-hero">
+  <div class="wrap">
+    <h1>Documentation</h1>
+    <p>Everything you can set up in TabTPS, from the first start to the last config option.</p>
+  </div>
+  <svg class="bands small" viewBox="0 0 1440 60" preserveAspectRatio="none" aria-hidden="true">
+    <path fill="#FFD43B" d="M0 14H1080Q1088 14 1088 6V8Q1088 0 1096 0H1440V60H0Z"/>
+    <path fill="#FF9F43" d="M0 26H820Q828 26 828 18V20Q828 12 836 12H1440V60H0Z"/>
+    <path fill="#FF6B6B" d="M0 38H560Q568 38 568 30V32Q568 24 576 24H1440V60H0Z"/>
+    <path fill="#EC4899" d="M0 50H300Q308 50 308 42V44Q308 36 316 36H1440V60H0Z"/>
+    <path fill="#3B82F6" d="M0 50H1440V60H0Z"/>
+  </svg>
+</div>
+
+<div class="doc-layout wrap">
+  <aside class="doc-nav" aria-label="Documentation">
+    <details class="doc-toc" open>
+      <summary>On this page<span class="doc-current"></span></summary>
+      <label class="doc-search">
+        <span class="visually-hidden">Search the docs</span>
+        <input type="search" placeholder="Search the docs" autocomplete="off">
+      </label>
+      <p class="doc-search-empty" hidden>Nothing found. Try a command, a permission or a config key.</p>
+      <ol>
+        <li class="group">Getting started
+          <ol>
+            <li><a href="#install">Install</a></li>
+            <li><a href="#first-steps">First steps</a></li>
+            <li><a href="#files">Config files</a></li>
+          </ol>
+        </li>
+        <li class="group">Configuration
+          <ol>
+            <li><a href="#main-conf">main.conf</a></li>
+            <li><a href="#display-configs">Display configs</a></li>
+            <li><a href="#custom-text">Custom text</a></li>
+            <li><a href="#themes">Themes and colors</a></li>
+            <li><a href="#lag-alerts">Lag alerts</a></li>
+            <li><a href="#settings-menu">Settings menu</a></li>
+          </ol>
+        </li>
+        <li class="group">Reference
+          <ol>
+            <li><a href="#commands">Commands</a></li>
+            <li><a href="#permissions">Permissions</a></li>
+            <li><a href="#modules">Modules</a></li>
+            <li><a href="#placeholders">Placeholders</a></li>
+          </ol>
+        </li>
+        <li class="group">Platforms
+          <ol>
+            <li><a href="#folia">Folia and regions</a></li>
+            <li><a href="#forge">Forge</a></li>
+            <li><a href="#velocity">Velocity network</a></li>
+          </ol>
+        </li>
+      </ol>
+    </details>
+  </aside>
+
+  <main class="doc-content">
+
+    <section id="install">
+      <h2>Install</h2>
+      <p>Download the file for your server from <a href="https://modrinth.com/plugin/tabtps-folia">Modrinth</a>. There is one plugin jar for every supported server, one Forge jar per Minecraft version and a separate jar for Velocity.</p>
+      <table>
+        <thead><tr><th>You run</th><th>File</th><th>Folder</th></tr></thead>
+        <tbody>
+          <tr><td>Folia, Canvas, Paper, Purpur, Leaf or Spigot (1.20 to 26.3)</td><td><code>tabtps-folia-*.jar</code></td><td><code>plugins/</code></td></tr>
+          <tr><td>Forge 26.3 or 1.20.1</td><td><code>tabtps-forge-mc&lt;version&gt;-*.jar</code></td><td><code>mods/</code></td></tr>
+          <tr><td>Velocity 3.4 or newer</td><td><code>tabtps-velocity-*.jar</code></td><td><code>plugins/</code> of the proxy</td></tr>
+        </tbody>
+      </table>
+      <p>Restart the server after you put the file in. The plugin needs Java 17 or newer, the Forge mod for 26.3 needs Java 25.</p>
+    </section>
+
+    <section id="first-steps">
+      <h2>First steps</h2>
+      <p>TabTPS starts with all displays off, so nobody gets surprised. Try them out on yourself first:</p>
+      <pre><code>/tabtps toggle tab
+/tabtps toggle actionbar
+/tabtps toggle bossbar</code></pre>
+      <p>Each command turns that display on or off for you. Players with the right permission can do the same for themselves. To change what the displays show and turn them on for everyone who joins, open the settings menu:</p>
+      <pre><code>/tabtps gui</code></pre>
+      <p>Everything in that menu is saved to the config files, so you can also edit them by hand and run <code>/tabtps reload</code>.</p>
+    </section>
+
+    <section id="files">
+      <h2>Config files</h2>
+      <p>The files are created on the first start.</p>
+      <table>
+        <thead><tr><th>File</th><th>What it holds</th></tr></thead>
+        <tbody>
+          <tr><td><code>main.conf</code></td><td>General options, update checks, lag alerts, menu style</td></tr>
+          <tr><td><code>display-configs/*.conf</code></td><td>What each display shows, one file per group of players</td></tr>
+          <tr><td><code>themes/*.conf</code></td><td>Colors for good, medium and bad values</td></tr>
+        </tbody>
+      </table>
+      <p>On plugins they live in <code>plugins/TabTPS/</code>, on Forge in <code>config/tabtps/</code>. After editing a file by hand, run <code>/tabtps reload</code>.</p>
+    </section>
+
+    <section id="main-conf">
+      <h2>main.conf</h2>
+      <table>
+        <thead><tr><th>Key</th><th>Default</th><th>What it does</th></tr></thead>
+        <tbody>
+          <tr><td><code>update-checker</code></td><td><code>true</code></td><td>Asks Modrinth once on startup whether a newer version exists for your platform and Minecraft version.</td></tr>
+          <tr><td><code>update-notify-on-join</code></td><td><code>true</code></td><td>Tells players with <code>tabtps.updatenotify</code> about a new version when they join.</td></tr>
+          <tr><td><code>update-rates</code></td><td><code>250</code></td><td>Milliseconds between updates, separately for <code>tab</code>, <code>action-bar</code> and <code>boss-bar</code>.</td></tr>
+          <tr><td><code>console-colors</code></td><td><code>true</code></td><td>Set to <code>false</code> for consoles that cannot show colors.</td></tr>
+          <tr><td><code>lag-alerts</code></td><td>off</td><td>Warnings when the server lags, see <a href="#lag-alerts">Lag alerts</a>.</td></tr>
+          <tr><td><code>send-stats-to-proxy</code></td><td><code>false</code></td><td>Sends this server's values to the Velocity plugin, see <a href="#velocity">Velocity network</a>.</td></tr>
+          <tr><td><code>gui-style</code></td><td><code>auto</code></td><td>Which settings menu opens: <code>auto</code>, <code>dialog</code> or <code>chest</code>.</td></tr>
+          <tr><td><code>permission-priorities</code></td><td></td><td>Order in which display config permissions are checked when a player has more than one.</td></tr>
+          <tr><td><code>ignored-memory-pools</code></td><td></td><td>Memory pools that <code>/memory</code> leaves out.</td></tr>
+          <tr><td><code>help-colors</code></td><td></td><td>Colors of the <code>/tabtps help</code> menu.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="display-configs">
+      <h2>Display configs</h2>
+      <p>A display config decides what the tab list, action bar and boss bar show. The default file is <code>display-configs/default.conf</code> and applies to everyone with <code>tabtps.defaultdisplay</code>. Add more files with their own <code>permission</code> to give groups of players different displays. If a player has several, <code>permission-priorities</code> in <code>main.conf</code> decides which one wins.</p>
+      <pre><code>permission="tabtps.defaultdisplay"
+tab-settings {
+    allow=true
+    enable-on-login=false
+    header-modules=""
+    footer-modules="tps,mspt"
+    theme=default
+}
+action-bar-settings {
+    allow=true
+    enable-on-login=false
+    modules="tps,mspt,ping"
+}
+boss-bar-settings {
+    allow=true
+    enable-on-login=false
+    modules="tps,mspt,ping"
+    fill-mode=MSPT
+    overlay=NOTCHED_20
+    login-delay-seconds=0
+}</code></pre>
+      <table>
+        <thead><tr><th>Key</th><th>What it does</th></tr></thead>
+        <tbody>
+          <tr><td><code>allow</code></td><td>Whether players may turn this display on at all.</td></tr>
+          <tr><td><code>enable-on-login</code></td><td>Turns the display on when a player joins for the first time.</td></tr>
+          <tr><td><code>modules</code>, <code>header-modules</code>, <code>footer-modules</code></td><td>Comma separated list of <a href="#modules">modules</a>, in the order they appear.</td></tr>
+          <tr><td><code>theme</code></td><td>Name of a file in <code>themes/</code>.</td></tr>
+          <tr><td><code>separator</code></td><td>Text between modules, in MiniMessage, e.g. <code>" &lt;gray&gt;|&lt;/gray&gt; "</code>.</td></tr>
+          <tr><td><code>fill-mode</code></td><td>Boss bar only: fill by <code>MSPT</code>, <code>TPS</code>, <code>REVERSE_MSPT</code> or <code>REVERSE_TPS</code>.</td></tr>
+          <tr><td><code>overlay</code></td><td>Boss bar only: <code>PROGRESS</code>, <code>NOTCHED_6</code>, <code>NOTCHED_10</code>, <code>NOTCHED_12</code> or <code>NOTCHED_20</code>.</td></tr>
+          <tr><td><code>login-delay-seconds</code></td><td>Boss bar only: waits this long after joining, so boss bars of other plugins come first.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="custom-text">
+      <h2>Custom text</h2>
+      <p>Instead of a module list, every display can show your own text in <a href="https://docs.advntr.dev/minimessage/format.html">MiniMessage</a>. Use <code>format</code> for the action bar and boss bar, <code>header-format</code> and <code>footer-format</code> for the tab list. Module names work as tags for their value, and <code>&lt;name_label&gt;</code> gives the translated label.</p>
+      <pre><code>format="&lt;gray&gt;The server runs at &lt;tps&gt; TPS, your ping is &lt;ping&gt;"
+footer-format="&lt;tps_label&gt;: &lt;tps&gt; &lt;dark_gray&gt;|&lt;/dark_gray&gt; &lt;gray&gt;up for &lt;uptime&gt;"</code></pre>
+      <p>Leave the format empty to go back to the module list.</p>
+    </section>
+
+    <section id="themes">
+      <h2>Themes and colors</h2>
+      <p>A theme sets the colors for good, medium and bad values. For finer steps, add <code>tps-levels</code> and <code>mspt-levels</code> to a theme. The boss bar can change its color by how full it is with <code>levels</code> in its <code>colors</code> section.</p>
+      <pre><code>tps-levels=[
+    {threshold=19.5, color=green, secondary-color=dark_green},
+    {threshold=17, color=yellow, secondary-color=gold},
+    {threshold=0, color=dark_red, secondary-color=red}
+]
+levels=[
+    {percent=0, color=BLUE},
+    {percent=30, color=GREEN},
+    {percent=60, color=YELLOW},
+    {percent=90, color=RED}
+]</code></pre>
+      <p>The boss bar follows <code>/tick rate</code> on servers that support it, so a full bar always means the target tick time.</p>
+    </section>
+
+    <section id="lag-alerts">
+      <h2>Lag alerts</h2>
+      <p>Lag alerts tell you when the server lags for a while. Players with <code>tabtps.lagalert</code> get a chat message, the console gets a log line and a Discord channel can get a message too. They are off until you turn them on.</p>
+      <pre><code>lag-alerts {
+    enabled=true
+    tps-below=15.0
+    mspt-above=0
+    seconds=30
+    cooldown-seconds=300
+    notify-recovery=true
+    discord-webhook=""
+}</code></pre>
+      <table>
+        <thead><tr><th>Key</th><th>What it does</th></tr></thead>
+        <tbody>
+          <tr><td><code>tps-below</code>, <code>mspt-above</code></td><td>The limits. <code>0</code> turns that check off.</td></tr>
+          <tr><td><code>seconds</code></td><td>How long the server has to stay past a limit before an alert goes out.</td></tr>
+          <tr><td><code>cooldown-seconds</code></td><td>Minimum time between two alerts.</td></tr>
+          <tr><td><code>notify-recovery</code></td><td>Sends a short message when the lag is over.</td></tr>
+          <tr><td><code>discord-webhook</code></td><td>A Discord webhook URL, starting with <code>https://discord.com/api/webhooks/</code>. Other addresses are ignored.</td></tr>
+        </tbody>
+      </table>
+      <p>On Folia and Canvas the slowest region counts for the TPS check and the busiest region for the MSPT check. The alert names the busiest region, because when one region is overloaded the others slow down too.</p>
+    </section>
+
+    <section id="settings-menu">
+      <h2>Settings menu</h2>
+      <p><code>/tabtps gui</code> opens a menu for the displays, modules, themes, custom text, lag alerts and general options, plus a page where each player turns their own displays on or off. Changes are written to the config files and take effect right away.</p>
+      <p>On Minecraft 1.21.6 and newer the menu uses Minecraft's dialog screens, on older versions a chest menu. <code>gui-style</code> in <code>main.conf</code> forces one of them. In the chest menu, text values are typed in chat. A Discord webhook that is already set shows as <code>(hidden)</code>, so its token never appears in the game.</p>
+      <img class="doc-shot" src="media/gui-dialog.png" width="1440" height="810" alt="The settings dialog with buttons for displays, lag alerts, general and your displays" loading="lazy">
+    </section>
+
+    <section id="commands">
+      <h2>Commands</h2>
+      <table>
+        <thead><tr><th>Command</th><th>What it does</th><th>Permission</th></tr></thead>
+        <tbody>
+          <tr><td><code>/tabtps toggle &lt;tab|actionbar|bossbar&gt; [player]</code></td><td>Turns a display on or off, for yourself or another player.</td><td>display config, <code>tabtps.toggle.others</code></td></tr>
+          <tr><td><code>/tabtps gui</code></td><td>Opens the settings menu.</td><td><code>tabtps.gui</code></td></tr>
+          <tr><td><code>/tabtps regions [count]</code></td><td>Lists the busiest regions. Folia and Canvas only.</td><td><code>tabtps.regions</code></td></tr>
+          <tr><td><code>/tabtps mobcaps</code></td><td>Lists the mob caps of every world.</td><td><code>tabtps.mobcaps</code></td></tr>
+          <tr><td><code>/tickinfo</code>, <code>/mspt</code></td><td>TPS and tick time overview, per region on Folia.</td><td><code>tabtps.tps</code></td></tr>
+          <tr><td><code>/memory</code>, <code>/mem</code>, <code>/ram</code></td><td>Memory pools of the server.</td><td><code>tabtps.tps</code></td></tr>
+          <tr><td><code>/ping [player]</code>, <code>/pingall</code></td><td>Your ping, someone else's, or everyone's.</td><td><code>tabtps.ping</code>, <code>tabtps.ping.others</code></td></tr>
+          <tr><td><code>/tabtps reload</code></td><td>Loads all config files again.</td><td><code>tabtps.reload</code></td></tr>
+          <tr><td><code>/networktps</code>, <code>/ntps</code></td><td>Values of every server behind Velocity. Runs on the proxy.</td><td><code>tabtps.network</code></td></tr>
+        </tbody>
+      </table>
+      <p>On Paper-based servers <code>/mspt</code> is Paper's own command, use <code>/tickinfo</code> there. The toggle command also works with <code>/execute as &lt;player&gt; run tabtps toggle ...</code> from command blocks and data packs.</p>
+    </section>
+
+    <section id="permissions">
+      <h2>Permissions</h2>
+      <p>Without a permission plugin every permission below belongs to operators only.</p>
+      <table>
+        <thead><tr><th>Permission</th><th>Allows</th></tr></thead>
+        <tbody>
+          <tr><td><code>tabtps.defaultdisplay</code></td><td>Using the default display config.</td></tr>
+          <tr><td><code>tabtps.toggle.others</code></td><td>Toggling displays of other players.</td></tr>
+          <tr><td><code>tabtps.gui</code></td><td>Opening the settings menu and saving changes in it.</td></tr>
+          <tr><td><code>tabtps.reload</code></td><td>Reloading the config, also from the menu.</td></tr>
+          <tr><td><code>tabtps.tps</code></td><td><code>/tickinfo</code> and <code>/memory</code>.</td></tr>
+          <tr><td><code>tabtps.ping</code>, <code>tabtps.ping.others</code></td><td>Your own ping, and the ping of others.</td></tr>
+          <tr><td><code>tabtps.mobcaps</code></td><td><code>/tabtps mobcaps</code>.</td></tr>
+          <tr><td><code>tabtps.regions</code>, <code>tabtps.regions.teleport</code></td><td>The region list, and teleporting by clicking a region.</td></tr>
+          <tr><td><code>tabtps.lagalert</code></td><td>Getting lag alerts in chat.</td></tr>
+          <tr><td><code>tabtps.updatenotify</code></td><td>Getting the update message on join.</td></tr>
+          <tr><td><code>tabtps.network</code></td><td><code>/networktps</code> on Velocity.</td></tr>
+        </tbody>
+      </table>
+      <p>On Forge the permissions go through Forge's permission API, so permission mods like LuckPerms can grant them. In singleplayer the world owner has every permission.</p>
+    </section>
+
+    <section id="modules">
+      <h2>Modules</h2>
+      <table>
+        <thead><tr><th>Module</th><th>Shows</th></tr></thead>
+        <tbody>
+          <tr><td><code>tps</code></td><td>TPS, of the player's region on Folia</td></tr>
+          <tr><td><code>mspt</code></td><td>Milliseconds per tick, of the player's region on Folia</td></tr>
+          <tr><td><code>ping</code></td><td>The player's ping</td></tr>
+          <tr><td><code>players</code></td><td>Players online</td></tr>
+          <tr><td><code>cpu</code></td><td>CPU usage of the system and the server</td></tr>
+          <tr><td><code>memory</code></td><td>Used, allocated and maximum memory</td></tr>
+          <tr><td><code>uptime</code></td><td>Time since the server started</td></tr>
+          <tr><td><code>lowest_region_tps</code>, <code>median_region_tps</code>, <code>highest_region_tps</code></td><td>TPS across all regions, Folia and Canvas only</td></tr>
+          <tr><td><code>mob_caps</code></td><td>Mob cap usage of the player's world</td></tr>
+          <tr><td><code>mob_cap_&lt;category&gt;</code></td><td>One category: <code>monster</code>, <code>creature</code>, <code>ambient</code>, <code>axolotls</code>, <code>underground_water_creature</code>, <code>water_creature</code> or <code>water_ambient</code></td></tr>
+        </tbody>
+      </table>
+      <p>Modules that cannot work on a server are left out of the displays and not offered in the settings menu: the region modules need Folia or Canvas, and the mob cap modules do not work there, because Folia counts mob caps per region and cannot count a whole world.</p>
+    </section>
+
+    <section id="placeholders">
+      <h2>Placeholders</h2>
+      <p>With <a href="https://modrinth.com/plugin/placeholderapi">PlaceholderAPI</a> installed, TabTPS registers these placeholders on its own. With <a href="https://modrinth.com/plugin/miniplaceholders">MiniPlaceholders</a> the same values are available as MiniMessage tags, e.g. <code>&lt;tabtps_tps&gt;</code>. Both work on the plugin, not on Forge.</p>
+      <table>
+        <thead><tr><th>Placeholder</th><th>Value</th></tr></thead>
+        <tbody>
+          <tr><td><code>%tabtps_tps%</code>, <code>%tabtps_tps_5s%</code>, <code>_1m</code>, <code>_5m</code>, <code>_15m</code></td><td>TPS, of the player's region on Folia</td></tr>
+          <tr><td><code>%tabtps_mspt%</code></td><td>MSPT, of the player's region on Folia</td></tr>
+          <tr><td><code>%tabtps_ping%</code></td><td>The player's ping</td></tr>
+          <tr><td><code>%tabtps_players%</code>, <code>%tabtps_max_players%</code></td><td>Player count</td></tr>
+          <tr><td><code>%tabtps_uptime%</code></td><td>Server uptime</td></tr>
+          <tr><td><code>%tabtps_lowest_region_tps%</code>, <code>%tabtps_median_region_tps%</code>, <code>%tabtps_highest_region_tps%</code></td><td>Region TPS on Folia, <code>N/A</code> elsewhere</td></tr>
+          <tr><td><code>%tabtps_cpu_system%</code>, <code>%tabtps_cpu_process%</code></td><td>CPU usage in percent</td></tr>
+          <tr><td><code>%tabtps_memory_used%</code>, <code>%tabtps_memory_allocated%</code>, <code>%tabtps_memory_max%</code></td><td>Memory in MB</td></tr>
+        </tbody>
+      </table>
+      <p>Add <code>_colored</code> to <code>tps</code>, <code>mspt</code>, <code>ping</code> and the region placeholders to get TabTPS' colors, e.g. <code>%tabtps_tps_colored%</code>.</p>
+    </section>
+
+    <section id="folia">
+      <h2>Folia and regions</h2>
+      <p>Folia ticks the world in regions, each with its own TPS. TabTPS shows every player the values of the region they stand in, and the region modules show the lowest, median and highest TPS of all regions. On servers without regions, <code>tps</code> and <code>mspt</code> show the server-wide values and the region modules are simply left out.</p>
+      <p><code>/tabtps regions</code> lists the busiest regions with their center, TPS, MSPT, load and their chunk, player and entity counts. Click a line to teleport to the middle of that region.</p>
+      <img class="doc-shot" src="media/regions.png" width="990" height="207" alt="List of regions sorted by load" loading="lazy">
+    </section>
+
+    <section id="forge">
+      <h2>Forge</h2>
+      <p>The Forge mod only has to be on the server. Players join with a normal client, and in singleplayer it runs on the built-in server, so you see the displays there too. Its config is in <code>config/tabtps/</code>.</p>
+      <p>PlaceholderAPI, MiniPlaceholders and the region features are plugin only. The settings menu works on Forge: with dialogs on 26.3 and as a chest menu on 1.20.1.</p>
+    </section>
+
+    <section id="velocity">
+      <h2>Velocity network</h2>
+      <p>The Velocity plugin collects the values of all servers behind your proxy and shows them with <code>/networktps</code>.</p>
+      <ol class="doc-steps">
+        <li>Put <code>tabtps-velocity-*.jar</code> into the proxy's <code>plugins/</code> folder and restart the proxy.</li>
+        <li>On every backend server with the TabTPS plugin, set <code>send-stats-to-proxy=true</code> in <code>main.conf</code>.</li>
+        <li>Run <code>/tabtps reload</code> on those servers, then <code>/networktps</code> on the proxy.</li>
+      </ol>
+      <p>Servers send their values every 5 seconds through a player's connection. A server without players keeps its last values and shows how old they are.</p>
+      <img class="doc-shot" src="media/network.png" width="990" height="213" alt="Network list with two servers" loading="lazy">
+    </section>
+
+
+  </main>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <a class="brand" href="index.html"><img src="media/logo-128.png" alt="">TabTPS Enhanced</a>
+      <p>MIT licensed. Based on <a href="https://github.com/jpenilla/TabTPS">TabTPS</a> by jpenilla.</p>
+    </div>
+    <nav aria-label="Links">
+      <a href="index.html">Home</a>
+      <a href="https://modrinth.com/plugin/tabtps-folia">Modrinth</a>
+      <a href="https://github.com/MCbabel/TabTPS-Folia">GitHub</a>
+      <a href="https://github.com/MCbabel/TabTPS-Folia/issues">Report a bug</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="site.js"></script>
+<script src="docs.js"></script>
+</body>
+</html>
