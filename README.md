@@ -1,5 +1,7 @@
 <img src="assets/banner.png" alt="TabTPS-Folia">
 
+![TabTPS showing TPS and MSPT in the boss bar, action bar and tab list while a server lags and recovers](assets/media/showcase.gif)
+
 Shows TPS, MSPT and other server stats in the tab list, action bar and boss bar. On Folia every player sees the values of the region they are in, not a server-wide average.
 
 Started as a Folia fork of [TabTPS by jpenilla](https://github.com/jpenilla/TabTPS). Since 1.2.0 it also runs on Canvas, Paper, Purpur, Leaf and Spigot, and since 1.3.0 as a Forge mod.
@@ -43,6 +45,8 @@ An optional Velocity plugin shows the TPS, MSPT and player counts of all backend
 
 The backends send their values every 5 seconds through a player connection, so a server without players shows its last known values with their age, or `no data`. Forge servers do not send data yet. Messages on that channel that come from a client instead of a backend server are dropped.
 
+![/networktps on the proxy](assets/media/network.png)
+
 ## Features
 
 ### Regional TPS/MSPT
@@ -76,15 +80,16 @@ Mob cap categories: `monster`, `creature`, `ambient`, `axolotls`, `underground_w
 
 #### Tab menu
 * Command: ``/tabtps toggle tab``
-* ![tab menu](https://i.imgur.com/93NmuUA.png)
+* ![tab menu](assets/media/tab-list.png)
 
 #### Action bar
 * Command: ``/tabtps toggle actionbar``
-* ![action bar](https://i.imgur.com/aMzzNRR.png)
+* ![action bar](assets/media/action-bar.png)
 
 #### Boss bar
 * Command: ``/tabtps toggle bossbar``
-* ![boss bar](https://i.postimg.cc/xCJnGYfb/bossbar.png)
+* ![boss bar](assets/media/boss-bar.png)
+* Under load it changes color and fills up: ![boss bar under load](assets/media/boss-bar-lag.png)
 
 Configure display modules and themes in `plugins/TabTPS/display-configs/` and `plugins/TabTPS/themes/` (`config/tabtps/` on Forge).
 
@@ -126,7 +131,9 @@ lag-alerts {
     discord-webhook=""
 }
 ```
-`tps-below` and `mspt-above` set the limits, 0 turns that check off. The server has to stay past a limit for `seconds` before an alert goes out, and after an alert the next one waits at least `cooldown-seconds`. On Folia and Canvas the slowest region counts, and the alert names its location.
+`tps-below` and `mspt-above` set the limits, 0 turns that check off. The server has to stay past a limit for `seconds` before an alert goes out, and after an alert the next one waits at least `cooldown-seconds`. On Folia and Canvas the slowest region counts for the TPS check and the busiest region for the MSPT check. The alert names the busiest region, because regions share their tick threads: when one region is overloaded, the TPS of the others drop too, so the region with the lowest TPS is often not the cause.
+
+![lag alert in chat](assets/media/lag-alert.png)
 
 ### PlaceholderAPI
 
@@ -151,22 +158,22 @@ If [MiniPlaceholders](https://modrinth.com/plugin/miniplaceholders) 2.x or 3.x i
 
 ### Commands
 
+![Running /tickinfo, /tabtps regions and /memory in chat](assets/media/commands.gif)
+
 #### Tick Info command
 * Command: ``/tickinfo`` or ``/mspt`` (on Paper-based servers ``/mspt`` is Paper's own command)
 * On Folia and Canvas: region TPS overview (Lowest/Median/Highest). Without regions: the standard tick time breakdown
 * Permission required: ``tabtps.tps``
-* ![tps command](https://i.imgur.com/w69C8r1.png)
+* ![tps command](assets/media/tickinfo.png)
 
 #### Memory command
 * Command: ``/memory``, `/mem`, or ``/ram``
 * Permission required: ``tabtps.tps``
-* ![memory command](https://i.imgur.com/eYeUNMc.png)
+* ![memory command](assets/media/memory.png)
 
 #### Ping command
 * Commands: ``/ping``, `/ping [username]`, or ``/pingall``
 * Permissions: ``tabtps.ping`` to view your own ping, ``tabtps.ping.others`` to view other users ping.
-* ![ping command](https://i.imgur.com/0agY7lB.png)
-* ![ping all](https://i.imgur.com/t1lBt2b.png)
 
 #### Toggle commands
 * Commands: ``/tabtps toggle tab``, ``/tabtps toggle actionbar``, ``/tabtps toggle bossbar``, each optionally with a player name, e.g. ``/tabtps toggle bossbar Steve``
@@ -183,6 +190,7 @@ If [MiniPlaceholders](https://modrinth.com/plugin/miniplaceholders) 2.x or 3.x i
 * Lists the regions with the highest load (10 by default), with world, center, TPS, MSPT, utilisation and their chunk, player and entity counts
 * Click a line to teleport to the center of that region, which needs ``tabtps.regions.teleport``
 * Permission required: ``tabtps.regions``
+* ![regions command](assets/media/regions.png)
 
 #### Reload command
 * Command: ``/tabtps reload``
