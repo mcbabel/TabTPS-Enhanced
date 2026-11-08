@@ -84,7 +84,7 @@ tabTPSPlatform {
   productionJar.set(tasks.shadowJar.flatMap { it.archiveFile })
 }
 
-publishMods.displayName.set("TabTPS Folia ${project.version} (Forge $minecraftVersion)")
+publishMods.displayName.set("TabTPS Enhanced ${project.version} (Forge $minecraftVersion)")
 publishMods.version.set("${project.version}+forge-$minecraftVersion")
 
 publishMods.modrinth {

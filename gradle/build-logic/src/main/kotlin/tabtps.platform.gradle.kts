@@ -19,7 +19,7 @@ tasks {
   }
 }
 
-publishMods.displayName.set("TabTPS Folia $version")
+publishMods.displayName.set("TabTPS Enhanced $version")
 publishMods.dryRun.set(providers.environmentVariable("MODRINTH_TOKEN").map { it.isBlank() }.orElse(true))
 
 publishMods.modrinth {

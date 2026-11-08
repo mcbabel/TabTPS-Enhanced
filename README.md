@@ -1,10 +1,12 @@
-<img src="assets/banner.png" alt="TabTPS-Folia">
+<img src="assets/banner.png" alt="TabTPS Enhanced">
+
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/mcbabel/TabTPS-Folia)
 
 ![TabTPS showing TPS and MSPT in the boss bar, action bar and tab list while a server lags and recovers](assets/media/showcase.gif)
 
 Shows TPS, MSPT and other server stats in the tab list, action bar and boss bar. On Folia every player sees the values of the region they are in, not a server-wide average.
 
-Started as a Folia fork of [TabTPS by jpenilla](https://github.com/jpenilla/TabTPS). Since 1.2.0 it also runs on Canvas, Paper, Purpur, Leaf and Spigot, and since 1.3.0 as a Forge mod.
+TabTPS Enhanced (formerly TabTPS Folia) started as a Folia fork of [TabTPS by jpenilla](https://github.com/jpenilla/TabTPS). Since 1.2.0 it also runs on Canvas, Paper, Purpur, Leaf and Spigot, and since 1.3.0 as a Forge mod.
 
 Download: [Modrinth](https://modrinth.com/plugin/tabtps-folia) or [GitHub releases](https://github.com/MCbabel/TabTPS-Folia/releases)
 
@@ -53,7 +55,7 @@ The backends send their values every 5 seconds through a player connection, so a
 
 On Folia, each player sees the TPS and MSPT of **their current region**, not a global average. When a player moves between regions, the displayed values update automatically.
 
-On servers without regions (Paper, Purpur, Leaf, Spigot) there is a single global tick loop, so `tps` and `mspt` show the server-wide values and the region modules below report `N/A`.
+On servers without regions (Paper, Purpur, Leaf, Spigot) there is a single global tick loop, so `tps` and `mspt` show the server-wide values. Modules that cannot work on a server, like the region modules without regions, are left out of the displays and are not offered in the settings menu.
 
 ### Modules
 
@@ -63,18 +65,18 @@ These modules can be used in display configs:
 |---|---|---|
 | `tps` | TPS of the player's current region | global TPS |
 | `mspt` | MSPT of the player's current region | global MSPT |
-| `lowest_region_tps` | Lowest TPS across all active regions | `N/A` |
-| `median_region_tps` | Median TPS across all active regions | `N/A` |
-| `highest_region_tps` | Highest TPS across all active regions | `N/A` |
+| `lowest_region_tps` | Lowest TPS across all active regions | left out |
+| `median_region_tps` | Median TPS across all active regions | left out |
+| `highest_region_tps` | Highest TPS across all active regions | left out |
 | `ping` | Player ping | same |
 | `cpu` | CPU usage | same |
 | `memory` | Memory usage | same |
 | `players` | Online player count | same |
 | `uptime` | Time since the server started, e.g. `14:15:16` or `4d 14:15:16` | same |
-| `mob_caps` | Mob cap usage of the player's world for every category | `N/A` on Folia and Canvas |
-| `mob_cap_<category>` | One category, e.g. `mob_cap_monster`, `mob_cap_creature` | `N/A` on Folia and Canvas |
+| `mob_caps` | Mob cap usage of the player's world for every category | left out on Folia and Canvas |
+| `mob_cap_<category>` | One category, e.g. `mob_cap_monster`, `mob_cap_creature` | left out on Folia and Canvas |
 
-Mob cap categories: `monster`, `creature`, `ambient`, `axolotls`, `underground_water_creature`, `water_creature`, `water_ambient`. On Forge the values come straight from Minecraft's spawner, on Paper, Purpur, Leaf and Spigot they are counted once a second from the server's entities and the chunks around players. Folia ticks mob caps per region and does not allow counting a whole world, so there the mob cap modules show `N/A`.
+Mob cap categories: `monster`, `creature`, `ambient`, `axolotls`, `underground_water_creature`, `water_creature`, `water_ambient`. On Forge the values come straight from Minecraft's spawner, on Paper, Purpur, Leaf and Spigot they are counted once a second from the server's entities and the chunks around players. Folia ticks mob caps per region and does not allow counting a whole world, so there the mob cap modules are left out.
 
 ### Live Information Displays
 

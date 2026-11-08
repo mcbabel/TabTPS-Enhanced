@@ -38,7 +38,7 @@ tabTPSPlatform {
   productionJar.set(tasks.jar.flatMap { it.archiveFile })
 }
 
-publishMods.displayName.set("TabTPS Folia ${project.version} (Velocity)")
+publishMods.displayName.set("TabTPS Enhanced ${project.version} (Velocity)")
 publishMods.version.set("${project.version}+velocity")
 
 publishMods.modrinth {

@@ -64,7 +64,7 @@ public final class AboutCommand extends TabTPSCommand {
       header,
       newline(),
       text()
-        .content("TabTPS Folia ")
+        .content("TabTPS Enhanced ")
         .append(gradient(Constants.TABTPS_VERSION, BLUE, AQUA))
         .clickEvent(openUrl("https://github.com/MCbabel/TabTPS-Folia"))
         .hoverEvent(MINIMESSAGE.deserialize("<rainbow>click me!")),

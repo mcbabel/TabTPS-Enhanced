@@ -6,7 +6,7 @@ issueTrackerURL="https://github.com/MCbabel/TabTPS-Folia/issues"
 [[mods]]
 modId="tabtps"
 version="${version}"
-displayName="TabTPS Folia"
+displayName="TabTPS Enhanced"
 displayURL="https://modrinth.com/plugin/tabtps-folia"
 logoFile="tabtps.png"
 authors="MCbabel, jmp"

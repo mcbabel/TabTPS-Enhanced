@@ -303,7 +303,7 @@ public final class GuiService {
     final double tps = this.tabTPS.platform().tickTimeService().displayTps();
     final double mspt = this.tabTPS.platform().tickTimeService().averageMspt();
     return Components.ofChildren(
-      text("TabTPS Folia " + Constants.TABTPS_VERSION, GRAY),
+      text("TabTPS Enhanced " + Constants.TABTPS_VERSION, GRAY),
       text("  •  ", DARK_GRAY),
       text("TPS ", GRAY), TPSUtil.coloredTps(tps, Theme.DEFAULT.colorScheme()),
       text("  MSPT ", GRAY), TPSUtil.coloredMspt(mspt, Theme.DEFAULT.colorScheme()),
@@ -514,7 +514,7 @@ public final class GuiService {
       default: {
         final Menu menu = new Menu(this.chestTitle(Messages.GUI_PAGE_MAIN, locale), 5);
         this.border(menu);
-        menu.set(4, new MenuItem("nether_star", bold(Components.gradient("TabTPS Folia", ACCENT, ACCENT_DARK)),
+        menu.set(4, new MenuItem("nether_star", bold(Components.gradient("TabTPS Enhanced", ACCENT, ACCENT_DARK)),
           Arrays.asList(this.status(), Component.empty(), Messages.GUI_PAGE_MAIN_BODY.styled(GRAY)), true, null));
         menu.set(20, this.pageItem("painting", Messages.GUI_PAGE_DISPLAYS, Messages.GUI_PAGE_DISPLAYS_DESCRIPTION, Pages.DISPLAYS));
         menu.set(21, this.pageItem("bell", Messages.GUI_PAGE_LAG, Messages.GUI_PAGE_LAG_DESCRIPTION, Pages.LAG));
