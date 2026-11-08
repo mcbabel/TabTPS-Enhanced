@@ -15,6 +15,8 @@ TabTPS Enhanced (formerly TabTPS Folia) started as a Folia fork of [TabTPS by jp
 
 Download: [Modrinth](https://modrinth.com/plugin/tabtps-folia) or [GitHub releases](https://github.com/MCbabel/TabTPS-Folia/releases)
 
+Website and documentation: [tabtps.mcbabel.de](https://tabtps.mcbabel.de/) ([docs](https://tabtps.mcbabel.de/docs.html))
+
 ## Platforms
 
 ### Plugin
