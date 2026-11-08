@@ -152,7 +152,7 @@ public final class GuiService {
         if (setting != null) {
           final List<String> selected = new ArrayList<>();
           for (final String module : editor.modules(setting)) {
-            if (!"false".equals(values.get(module)) && (values.containsKey(module) || !ConfigEditor.MODULES.contains(module))) {
+            if (!"false".equals(values.get(module))) {
               selected.add(module);
             }
           }
@@ -244,6 +244,20 @@ public final class GuiService {
       default:
         return Collections.emptyList();
     }
+  }
+
+  private List<String> availableModules() {
+    final List<String> modules = new ArrayList<>();
+    for (final String module : ConfigEditor.MODULES) {
+      if (module.endsWith("_region_tps") && this.tabTPS.platform().regionStatsService() == null) {
+        continue;
+      }
+      if (module.equals("mob_caps") && this.tabTPS.platform().mobCapService() == null) {
+        continue;
+      }
+      modules.add(module);
+    }
+    return modules;
   }
 
   private Map<String, Path> displayFiles() {
@@ -355,7 +369,7 @@ public final class GuiService {
         builder.body(Messages.GUI_PAGE_MODULES_BODY.styled(GRAY));
         final List<String> current = editor.modules(setting);
         final StringBuilder template = new StringBuilder("tabtps gui apply " + page + " ");
-        for (final String module : ConfigEditor.MODULES) {
+        for (final String module : this.availableModules()) {
           builder.toggle(module, Pages.moduleName(module).plain(), current.contains(module), Messages.GUI_TEXT_SHOWN.styled(GREEN), Messages.GUI_TEXT_HIDDEN.styled(RED));
           template.append(SEPARATOR).append(module).append("=$(").append(module).append(')');
         }
@@ -478,7 +492,7 @@ public final class GuiService {
         }
         final List<String> current = editor.modules(setting);
         final List<MenuItem> items = new ArrayList<>();
-        for (final String module : ConfigEditor.MODULES) {
+        for (final String module : this.availableModules()) {
           final boolean on = current.contains(module);
           items.add(new MenuItem(Pages.moduleIcon(module), bold(Pages.moduleName(module).styled(on ? GREEN : GRAY)),
             Arrays.asList(state(on), Component.empty(), hint(Messages.GUI_TEXT_CLICK_TOGGLE)), on,

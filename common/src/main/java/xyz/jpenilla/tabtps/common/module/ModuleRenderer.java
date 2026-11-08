@@ -97,8 +97,9 @@ public final class ModuleRenderer {
   private @NonNull Component renderFormat(final @NonNull String format) {
     final TagResolver.Builder resolver = TagResolver.builder();
     this.formatModules.forEach((name, module) -> {
-      resolver.resolver(Placeholder.component(name, module.display()));
-      resolver.resolver(Placeholder.component(name + LABEL_SUFFIX, module.label()));
+      final boolean available = module.available();
+      resolver.resolver(Placeholder.component(name, available ? module.display() : Component.empty()));
+      resolver.resolver(Placeholder.component(name + LABEL_SUFFIX, available ? module.label() : Component.empty()));
     });
     return Serializers.MINIMESSAGE.deserialize(format, resolver.build());
   }
@@ -209,6 +210,7 @@ public final class ModuleRenderer {
         .map(ModuleType::fromName)
         .filter(type -> !type.needsPlayer() || player != null)
         .map(type -> type.createModule(tabTPS, theme, player))
+        .filter(Module::available)
         .collect(Collectors.toList()));
     }
 

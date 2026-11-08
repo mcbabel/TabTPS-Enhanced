@@ -31,6 +31,10 @@ public interface Module {
 
   @NonNull Component display();
 
+  default boolean available() {
+    return true;
+  }
+
   default @NonNull ModuleType<? extends Module> type() {
     return ModuleType.fromClass(this.getClass());
   }

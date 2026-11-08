@@ -47,6 +47,11 @@ public final class LowestRegionTPSModule extends AbstractModule {
   }
 
   @Override
+  public boolean available() {
+    return this.tabTPS.platform().regionStatsService() != null;
+  }
+
+  @Override
   public @NonNull Component display() {
     final RegionStatsService service = this.tabTPS.platform().regionStatsService();
     if (service == null) {

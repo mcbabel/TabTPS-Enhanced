@@ -64,6 +64,11 @@ public final class MobCapModule extends AbstractModule {
   }
 
   @Override
+  public boolean available() {
+    return this.tabTPS.platform().mobCapService() != null;
+  }
+
+  @Override
   public @NonNull Component display() {
     final MobCapService service = this.tabTPS.platform().mobCapService();
     final MobCapService.WorldMobCaps caps = service == null || this.user == null ? null : service.world(this.user);
