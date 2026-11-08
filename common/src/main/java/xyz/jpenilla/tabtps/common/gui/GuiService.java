@@ -67,6 +67,7 @@ import static net.kyori.adventure.text.format.NamedTextColor.WHITE;
 public final class GuiService {
   static final String SEPARATOR = "\u00a6";
   private static final String INVALID_WEBHOOK = "invalid webhook";
+  private static final String HIDDEN = "(hidden)";
   private static final Gson GSON = new GsonBuilder().disableHtmlEscaping().create();
   private static final TextColor ACCENT = TextColor.color(0x4ADE80);
   private static final TextColor ACCENT_DARK = TextColor.color(0x14B8A6);
@@ -202,6 +203,9 @@ public final class GuiService {
         }
         break;
       case TEXT:
+        if (secret(setting) && value.trim().equals(HIDDEN)) {
+          break;
+        }
         if (setting.id().equals("webhook") && !value.trim().isEmpty() && !DiscordWebhooks.valid(value)) {
           throw new IllegalArgumentException(INVALID_WEBHOOK);
         }
@@ -421,7 +425,7 @@ public final class GuiService {
           break;
         }
         case TEXT:
-          builder.text(setting.id(), setting.label().plain(), editor.string(setting));
+          builder.text(setting.id(), setting.label().plain(), shown(setting, editor.string(setting)));
           break;
         default:
           continue;
@@ -573,7 +577,7 @@ public final class GuiService {
       }
       case TEXT: {
         final String value = editor.string(setting);
-        lore.add(Messages.GUI_TEXT_CURRENT.styled(GRAY, value.isEmpty() ? Messages.GUI_TEXT_EMPTY.styled(DARK_GRAY) : text(shorten(value), WHITE)));
+        lore.add(Messages.GUI_TEXT_CURRENT.styled(GRAY, value.isEmpty() ? Messages.GUI_TEXT_EMPTY.styled(DARK_GRAY) : text(shorten(shown(setting, value)), WHITE)));
         lore.add(Component.empty());
         lore.add(hint(Messages.GUI_TEXT_CLICK_EDIT));
         return new MenuItem(setting.icon(), name, lore, false, (user, click) -> {
@@ -662,6 +666,14 @@ public final class GuiService {
 
   private static String format(final Setting setting, final double value) {
     return setting.integer() ? String.valueOf((long) Math.round(value)) : String.valueOf(Math.round(value * 100.0) / 100.0);
+  }
+
+  private static boolean secret(final Setting setting) {
+    return setting.id().equals("webhook");
+  }
+
+  private static String shown(final Setting setting, final String value) {
+    return secret(setting) && !value.isEmpty() ? HIDDEN : value;
   }
 
   private static String shorten(final String value) {

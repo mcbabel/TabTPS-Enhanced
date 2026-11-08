@@ -139,7 +139,7 @@ lag-alerts {
 
 `/tabtps gui` opens a menu that changes the settings right in the game: the displays with their modules, theme and custom text, the lag alerts, the general options and your own displays. Everything is written to the config files and reloaded right away. Permission `tabtps.gui` (operators by default).
 
-On Minecraft 1.21.6 and newer it uses Minecraft's dialog screens, on older versions a chest menu. The same goes for the Forge mod: dialogs on 26.3, a chest menu on 1.20.1. `gui-style` in `main.conf` can force one of them (`auto`, `dialog` or `chest`). Text values like the Discord webhook are typed in a text field in the dialog, or in chat when using the chest menu.
+On Minecraft 1.21.6 and newer it uses Minecraft's dialog screens, on older versions a chest menu. The same goes for the Forge mod: dialogs on 26.3, a chest menu on 1.20.1. `gui-style` in `main.conf` can force one of them (`auto`, `dialog` or `chest`). Text values like the Discord webhook are typed in a text field in the dialog, or in chat when using the chest menu. A Discord webhook that is already set shows as `(hidden)`, so its token is not visible in the game; leaving it like that keeps the saved URL.
 
 ![Changing modules and lag alerts in the settings menu](assets/media/gui.gif)
 
