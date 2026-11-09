@@ -2,6 +2,16 @@ name: Release
 
 on:
   workflow_dispatch:
+    inputs:
+      mode:
+        description: What to publish
+        type: choice
+        default: new release
+        options:
+          - new release
+          - existing release to Hangar
+          - existing release to CurseForge
+          - existing release to Hangar and CurseForge
 
 permissions:
   contents: write
@@ -13,14 +23,18 @@ concurrency:
 jobs:
   release:
     runs-on: ubuntu-latest
+    env:
+      MODE: ${{ inputs.mode }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 
-      - name: Check version, release notes and token
+      - name: Check version, release notes and tokens
         env:
           MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+          HANGAR_TOKEN: ${{ secrets.HANGAR_TOKEN }}
+          CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
         run: |
           version=$(grep '^version=' gradle.properties | cut -d= -f2)
           notes="release-notes/$version.md"
@@ -28,17 +42,48 @@ jobs:
             echo "$notes is missing, add the release notes for $version first"
             exit 1
           fi
+          tagged=false
           if git rev-parse -q --verify "refs/tags/v$version" > /dev/null; then
-            echo "Tag v$version already exists, raise the version in gradle.properties"
-            exit 1
+            tagged=true
           fi
-          if [ -z "$MODRINTH_TOKEN" ]; then
-            echo "MODRINTH_TOKEN secret is not set"
+          hangar=false
+          curseforge=false
+          if [ "$MODE" = "new release" ]; then
+            if [ "$tagged" = true ]; then
+              echo "Tag v$version already exists, raise the version in gradle.properties"
+              exit 1
+            fi
+            if [ -z "$MODRINTH_TOKEN" ]; then
+              echo "MODRINTH_TOKEN secret is not set"
+              exit 1
+            fi
+            [ -n "$HANGAR_TOKEN" ] && hangar=true || echo "::warning::HANGAR_TOKEN secret is not set, skipping Hangar"
+            [ -n "$CURSEFORGE_TOKEN" ] && curseforge=true || echo "::warning::CURSEFORGE_TOKEN secret is not set, skipping CurseForge"
+          else
+            if [ "$tagged" = false ]; then
+              echo "There is no release v$version yet, use new release"
+              exit 1
+            fi
+            case "$MODE" in *Hangar*) hangar=true ;; esac
+            case "$MODE" in *CurseForge*) curseforge=true ;; esac
+            if [ "$hangar" = true ] && [ -z "$HANGAR_TOKEN" ]; then
+              echo "HANGAR_TOKEN secret is not set"
+              exit 1
+            fi
+            if [ "$curseforge" = true ] && [ -z "$CURSEFORGE_TOKEN" ]; then
+              echo "CURSEFORGE_TOKEN secret is not set"
+              exit 1
+            fi
+          fi
+          if [ "$curseforge" = true ] && [ -z "$(grep '^curseforgeProjectId=' gradle.properties | cut -d= -f2)" ]; then
+            echo "curseforgeProjectId is not set in gradle.properties"
             exit 1
           fi
           {
             echo "VERSION=$version"
             echo "NOTES_FILE=$notes"
+            echo "PUBLISH_HANGAR=$hangar"
+            echo "PUBLISH_CURSEFORGE=$curseforge"
             echo "RELEASE_NOTES<<RELEASE_NOTES_EOF"
             cat "$notes"
             echo
@@ -56,6 +101,7 @@ jobs:
         run: ./gradlew build --console=plain
 
       - name: Create GitHub release
+        if: env.MODE == 'new release'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -78,6 +124,21 @@ jobs:
             --notes-file "$NOTES_FILE"
 
       - name: Publish to Modrinth
+        if: env.MODE == 'new release'
         env:
+          PUBLISH: "true"
           MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
         run: ./gradlew publishModrinth --console=plain
+
+      - name: Publish to Hangar
+        if: env.PUBLISH_HANGAR == 'true'
+        env:
+          HANGAR_TOKEN: ${{ secrets.HANGAR_TOKEN }}
+        run: ./gradlew :tabtps-folia:publishPluginPublicationToHangar --console=plain
+
+      - name: Publish to CurseForge
+        if: env.PUBLISH_CURSEFORGE == 'true'
+        env:
+          PUBLISH: "true"
+          CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
+        run: ./gradlew publishCurseforge --console=plain

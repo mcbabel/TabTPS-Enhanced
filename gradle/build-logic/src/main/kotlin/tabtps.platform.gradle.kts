@@ -20,7 +20,7 @@ tasks {
 }
 
 publishMods.displayName.set("TabTPS Enhanced $version")
-publishMods.dryRun.set(providers.environmentVariable("MODRINTH_TOKEN").map { it.isBlank() }.orElse(true))
+publishMods.dryRun.set(providers.environmentVariable("PUBLISH").map { it != "true" }.orElse(true))
 
 publishMods.modrinth {
   projectId.set("6n5IVh64")

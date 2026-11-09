@@ -1,3 +1,4 @@
+import me.modmuss50.mpp.ReleaseType
 import me.modmuss50.mpp.platforms.modrinth.ModrinthEnvironment
 
 plugins {
@@ -102,4 +103,19 @@ publishMods.modrinth {
   environment = ModrinthEnvironment.SERVER_ONLY
   minecraftVersions.add(minecraftVersion)
   modLoaders.add("forge")
+}
+
+providers.gradleProperty("curseforgeProjectId").filter { it.isNotBlank() }.orNull?.let { curseforgeProject ->
+  publishMods.curseforge {
+    projectId.set(curseforgeProject)
+    accessToken.set(providers.environmentVariable("CURSEFORGE_TOKEN"))
+    type.set(ReleaseType.STABLE)
+    file.set(tabTPSPlatform.productionJar)
+    changelog.set(releaseNotes)
+    minecraftVersions.add(minecraftVersion)
+    modLoaders.add("forge")
+    javaVersions.add(JavaVersion.VERSION_17)
+    clientRequired.set(false)
+    serverRequired.set(true)
+  }
 }
